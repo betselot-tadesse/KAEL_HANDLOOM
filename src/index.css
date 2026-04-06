@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-kael-gold: #AE997C;
+  --color-kael-purple: #756876;
+  --color-kael-accent: #CE984B;
+  --color-kael-brown: #B46018;
+  --color-kael-dark: #6D521B;
+  --color-kael-paper: #F9F7F2;
+  --color-kael-ink: #1A1A1A;
+}
+
+@layer base {
+  body {
+    @apply bg-kael-paper text-kael-ink font-sans antialiased;
+  }
+
+  h1 {
+    @apply font-bold uppercase tracking-widest;
+  }
+
+  h2 {
+    @apply font-semibold uppercase tracking-wider;
+  }
+}
+
+@layer components {
+  .btn-luxury {
+    @apply px-8 py-3 uppercase tracking-[0.2em] text-xs transition-all duration-300 border border-kael-ink hover:bg-kael-ink hover:text-white;
+  }
+
+  .serif-display {
+    @apply font-bold text-4xl md:text-6xl tracking-tighter;
+  }
+
+  .micro-label {
+    @apply text-[10px] uppercase tracking-[0.4em] font-semibold text-kael-gold mb-4 block;
+  }
+}

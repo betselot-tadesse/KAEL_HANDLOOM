@@ -1,0 +1,92 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "A luxury handloom product",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Product name" },
+        "description": { "type": "string", "description": "Short craftsmanship story" },
+        "price": { "type": "number", "description": "Product price" },
+        "imageUrls": { "type": "array", "items": { "type": "string" }, "description": "URLs of the product images from different angles" },
+        "category": { "type": "string", "enum": ["Mens Wear", "Womens Wear", "Modest"], "description": "Product collection" },
+        "craftStory": { "type": "string", "description": "Detailed story of the craft" },
+        "materialDetails": { "type": "string", "description": "Details about the materials used" },
+        "careInstructions": { "type": "string", "description": "How to care for the textile" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["name", "price", "imageUrls", "category"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A customer order",
+      "type": "object",
+      "properties": {
+        "customerName": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "items": { "type": "array", "items": { "type": "object" } },
+        "totalAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "processing", "shipped", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerEmail", "items", "totalAmount", "status"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Application user",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "user"] }
+      },
+      "required": ["email", "role"]
+    },
+    "JournalEntry": {
+      "title": "Journal Entry",
+      "description": "An editorial article for the KAEL journal",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "date": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "excerpt": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "date", "imageUrl", "excerpt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Product category",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name"]
+    }
+  },
+  "firestore": {
+    "products": {
+      "schema": "Product",
+      "description": "Collection of luxury textiles"
+    },
+    "orders": {
+      "schema": "Order",
+      "description": "Customer orders"
+    },
+    "users": {
+      "schema": "User",
+      "description": "User profiles and roles"
+    },
+    "journal": {
+      "schema": "JournalEntry",
+      "description": "Journal articles"
+    },
+    "categories": {
+      "schema": "Category",
+      "description": "Product categories"
+    }
+  }
+}
