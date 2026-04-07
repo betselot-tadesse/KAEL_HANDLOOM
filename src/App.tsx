@@ -702,50 +702,10 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
 
   if (!content) {
     return (
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        exit={{ opacity: 0 }}
-        className="bg-kael-paper"
-      >
-        {/* Hero Section */}
-        <section className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
-          <img 
-            src="https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000" 
-            alt="Handloom Weaving" 
-            className="w-full h-full object-cover brightness-75"
-          />
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-6">
-            <motion.span 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="micro-label text-white/80"
-            >
-              Our Story
-            </motion.span>
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-5xl md:text-7xl font-bold tracking-tight"
-            >
-              About KAEL
-            </motion.h1>
-          </div>
-        </section>
-
-        {/* Content Section 1 */}
-        <section className="py-32 px-6 md:px-24 bg-white">
-          <div className="max-w-4xl mx-auto text-center">
-            <span className="micro-label">The Beginning</span>
-            <h2 className="serif-display mb-8">A Quiet Desire</h2>
-            <p className="text-lg text-kael-purple leading-loose italic">
-              "KAEL was born from a quiet desire — to create clothing that feels meaningful in a world of excess."
-            </p>
-          </div>
-        </section>
-      </motion.div>
+      <div className="pt-48 pb-32 px-6 text-center">
+        <h1 className="serif-display mb-8">About KAEL</h1>
+        <p className="text-kael-purple max-w-xl mx-auto">This section is currently being curated.</p>
+      </div>
     );
   }
 
@@ -756,6 +716,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
       exit={{ opacity: 0 }}
       className="bg-kael-paper"
     >
+      {/* Hero Section */}
       <section className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
         <img 
           src={content.heroImageUrl || "https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000"} 
@@ -769,7 +730,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
             transition={{ delay: 0.3 }}
             className="micro-label text-white/80"
           >
-            {content.subtitle}
+            {content.subtitle || 'Our Story'}
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -782,19 +743,113 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
         </div>
       </section>
 
-      <section className="py-32 px-6 md:px-24 bg-white">
-        <div className="max-w-4xl mx-auto">
-          <div className="prose prose-kael max-w-none">
-            <ReactMarkdown>{content.content || ''}</ReactMarkdown>
+      {/* Dynamic Sections */}
+      {(content.sections || []).map((section, idx) => {
+        // Section 1 & 3: Grid layouts (idx 0 and 2)
+        if (idx === 0 || idx === 2) {
+          return (
+            <section key={idx} className="py-32 px-6 md:px-24 bg-white">
+              <div className="max-w-5xl mx-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                  <div className={section.imagePosition === 'left' ? 'order-2' : 'order-1'}>
+                    <span className="micro-label">{section.title}</span>
+                    <div className="prose prose-kael mt-8">
+                      <ReactMarkdown>{section.content}</ReactMarkdown>
+                    </div>
+                  </div>
+                  <div className={cn("aspect-[4/5] overflow-hidden", section.imagePosition === 'left' ? 'order-1' : 'order-2')}>
+                    {section.imageUrl && (
+                      <img 
+                        src={section.imageUrl} 
+                        alt={section.title} 
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            </section>
+          );
+        }
+
+        // Section 2: Full width text (idx 1)
+        if (idx === 1) {
+          return (
+            <section key={idx} className="py-32 px-6 md:px-24 bg-kael-paper">
+              <div className="max-w-3xl mx-auto text-center">
+                <div className="prose prose-kael max-w-none text-xl md:text-2xl text-kael-ink leading-relaxed font-light">
+                  <ReactMarkdown>{section.content}</ReactMarkdown>
+                </div>
+                <div className="w-24 h-[1px] bg-kael-gold mx-auto mt-12" />
+              </div>
+            </section>
+          );
+        }
+
+        // Section 4: Quote (idx 3)
+        if (idx === 3) {
+          return (
+            <section key={idx} className="py-40 px-6 md:px-24 bg-kael-ink text-white text-center">
+              <div className="max-w-3xl mx-auto">
+                <h2 className="text-4xl md:text-5xl font-bold mb-12 tracking-tighter leading-tight">
+                  "{section.content}"
+                </h2>
+                <span className="micro-label text-white/60">{section.title}</span>
+              </div>
+            </section>
+          );
+        }
+
+        // Fallback for extra sections
+        return (
+          <section key={idx} className="py-20 px-6 md:px-24 bg-white">
+            <div className="max-w-4xl mx-auto prose prose-kael">
+              <h2 className="serif-display mb-8">{section.title}</h2>
+              <ReactMarkdown>{section.content}</ReactMarkdown>
+            </div>
+          </section>
+        );
+      })}
+
+      {/* If no sections, show the main content field */}
+      {(!content.sections || content.sections.length === 0) && content.content && (
+        <section className="py-32 px-6 md:px-24 bg-white">
+          <div className="max-w-4xl mx-auto">
+            <div className="prose prose-kael max-w-none">
+              <ReactMarkdown>{content.content}</ReactMarkdown>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </motion.div>
   );
 };
 
 const Craft = ({ pageContents }: { pageContents: PageContent[] }) => {
   const content = pageContents.find(p => p.pageId === 'craft');
+
+  const defaultSections = [
+    {
+      title: "The Master Weavers",
+      content: "Our craft begins with the hands of master weavers, whose lineage of textile artistry spans generations. Each movement is a rhythmic dance of precision and patience.",
+      imageUrl: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1000",
+      imagePosition: 'left' as const
+    },
+    {
+      title: "The Handloom Machines",
+      content: "We use traditional wooden handlooms, mechanical marvels that require no electricity, only the skilled coordination of the weaver's hands and feet.",
+      imageUrl: "https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1000",
+      imagePosition: 'right' as const
+    },
+    {
+      title: "The Finest Threads",
+      content: "Our threads are sourced from sustainable silk and organic cotton, dyed with natural pigments to create a palette that reflects the vibrant soul of the sea.",
+      imageUrl: "https://images.unsplash.com/photo-1528476513691-07e6f563d97f?auto=format&fit=crop&q=80&w=1000",
+      imagePosition: 'left' as const
+    }
+  ];
+
+  const sections = content?.sections && content.sections.length > 0 ? content.sections : defaultSections;
 
   return (
     <motion.div 
@@ -803,15 +858,37 @@ const Craft = ({ pageContents }: { pageContents: PageContent[] }) => {
       exit={{ opacity: 0 }}
       className="pt-48 pb-32 px-6 md:px-12 bg-kael-paper min-h-screen"
     >
-      <div className="max-w-4xl mx-auto text-center">
-        <span className="micro-label">{content?.subtitle || 'The Art of Making'}</span>
-        <h1 className="serif-display mt-4 mb-12">{content?.title || 'Our Craft'}</h1>
-        <div className="prose prose-kael max-w-none text-left">
-          {content ? (
-            <ReactMarkdown>{content.content || ''}</ReactMarkdown>
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-24">
+          <span className="micro-label">{content?.subtitle || 'The Art of Making'}</span>
+          <h1 className="serif-display mt-4 mb-8">{content?.title || 'Our Craft'}</h1>
+          {content?.content ? (
+            <div className="prose prose-kael max-w-2xl mx-auto italic">
+              <ReactMarkdown>{content.content}</ReactMarkdown>
+            </div>
           ) : (
-            <p className="text-kael-purple italic">This section is currently being curated to reflect the highest standards of handloom luxury.</p>
+            <p className="prose prose-kael max-w-2xl mx-auto italic">
+              A journey through the meticulous process of handloom artistry, where every thread tells a story of heritage and luxury.
+            </p>
           )}
+        </div>
+
+        <div className="space-y-32">
+          {sections.map((section, idx) => (
+            <div key={idx} className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+              <div className={idx % 2 === 1 ? 'md:order-2' : ''}>
+                <span className="micro-label">{section.title}</span>
+                <div className="prose prose-kael mt-8">
+                  <ReactMarkdown>{section.content}</ReactMarkdown>
+                </div>
+              </div>
+              <div className={cn("aspect-[4/5] overflow-hidden bg-white", idx % 2 === 1 ? 'md:order-1' : '')}>
+                {section.imageUrl && (
+                  <img src={section.imageUrl} alt={section.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </motion.div>
@@ -828,31 +905,44 @@ const Contact = ({ pageContents }: { pageContents: PageContent[] }) => {
       exit={{ opacity: 0 }}
       className="pt-48 pb-32 px-6 md:px-12 bg-kael-paper min-h-screen"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <span className="micro-label">{content?.subtitle || 'Connect With Us'}</span>
           <h1 className="serif-display mt-4 mb-8">{content?.title || 'Contact the Atelier'}</h1>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-          <div className="prose prose-kael">
-            {content ? (
-              <ReactMarkdown>{content.content || ''}</ReactMarkdown>
-            ) : (
-              <>
-                <h3 className="text-lg font-bold mb-4">Inquiries</h3>
-                <p className="text-kael-purple mb-8">For bespoke requests, collection inquiries, or to visit our atelier, please reach out via WhatsApp or Email.</p>
-                
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
+          <div>
+            <div className="prose prose-kael mb-12">
+              <ReactMarkdown>
+                {content?.content || `
+### Inquiries
+For bespoke requests, collection inquiries, or to visit our atelier, please reach out via WhatsApp or Email.
+                `}
+              </ReactMarkdown>
+            </div>
+            
+            <div className="space-y-12">
+              {(content?.sections || []).map((section, idx) => (
+                <div key={idx} className="border-t border-kael-gold/10 pt-8">
+                  <h3 className="text-sm font-bold uppercase tracking-widest mb-4">{section.title}</h3>
+                  <div className="prose prose-kael text-sm">
+                    <ReactMarkdown>{section.content}</ReactMarkdown>
+                  </div>
+                </div>
+              ))}
+
+              {!content?.sections?.length && (
                 <div className="space-y-4 text-sm">
                   <p><strong>WhatsApp:</strong> +971 569728661</p>
                   <p><strong>Email:</strong> atelier@kael.com</p>
                   <p><strong>Location:</strong> Dubai, UAE</p>
                 </div>
-              </>
-            )}
+              )}
+            </div>
           </div>
           
-          <div className="bg-white p-10 shadow-sm border border-kael-gold/10">
+          <div className="bg-white p-10 shadow-sm border border-kael-gold/10 h-fit">
             <h3 className="text-sm font-bold uppercase tracking-widest mb-8">Send a Message</h3>
             <form className="space-y-6">
               <div>
@@ -1251,6 +1341,7 @@ const Collections = ({
         "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=800"
       ],
       category: "Mens Wear",
+      collection: "Beyond The Sea",
       description: "Hand-woven cotton tunic with subtle embroidery.",
       craftStory: "Woven by master weavers in Varanasi.",
       materialDetails: "100% Pure Cotton",
@@ -1269,6 +1360,7 @@ const Collections = ({
         "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&q=80&w=800"
       ],
       category: "Womens Wear",
+      collection: "Beyond The Sea",
       description: "Elegant silk gown with hand-carved block prints.",
       craftStory: "Hand-carved block prints from Rajasthan.",
       materialDetails: "Organic Silk",
@@ -1287,6 +1379,7 @@ const Collections = ({
         "https://images.unsplash.com/photo-1564419320391-096963f2537c?auto=format&fit=crop&q=80&w=800"
       ],
       category: "Modest",
+      collection: "Beyond The Sea",
       description: "Ultra-fine hand-spun modest wear.",
       craftStory: "Hand-spun on traditional wooden looms.",
       materialDetails: "100% Fine Wool",
@@ -1300,14 +1393,18 @@ const Collections = ({
     return (
       p.name.toLowerCase().includes(query) ||
       p.category.toLowerCase().includes(query) ||
-      p.description.toLowerCase().includes(query)
+      p.description.toLowerCase().includes(query) ||
+      (p.collection || '').toLowerCase().includes(query)
     );
   });
+
   const displayCategories = categories.length > 0 ? categories : [
     { id: 'c1', name: 'Mens Wear', description: '' },
     { id: 'c2', name: 'Womens Wear', description: '' },
     { id: 'c3', name: 'Modest', description: '' }
   ];
+
+  const collections = ["Beyond The Sea", "Future Collection I", "Future Collection II"];
 
   return (
     <motion.div 
@@ -1328,36 +1425,61 @@ const Collections = ({
           </p>
         </div>
 
-        {displayCategories.map(category => {
-          const categoryProducts = displayProducts.filter(p => p.category === category.name);
-          if (categoryProducts.length === 0) return null;
+        <div className="space-y-32">
+          {collections.map((collectionName, collectionIdx) => {
+            const collectionProducts = displayProducts.filter(p => p.collection === collectionName || (!p.collection && collectionName === "Beyond The Sea"));
+            const isFuture = collectionProducts.length === 0 && collectionIdx > 0;
 
-          return (
-            <div key={category.id} className="mb-20">
-              <div className="flex items-baseline gap-4 mb-8 border-b border-kael-ink/10 pb-4">
-                <h2 className="text-3xl font-bold">{category.name}</h2>
-                <span className="text-xs uppercase tracking-widest text-kael-purple">
-                  {categoryProducts.length} {hasData ? 'Pieces' : 'Sample Pieces'}
-                </span>
+            return (
+              <div key={collectionName} className="relative">
+                <div className="mb-12 text-center">
+                  <h2 className="text-4xl md:text-5xl font-bold serif-display tracking-tight text-kael-ink">{collectionName}</h2>
+                  <div className="w-24 h-px bg-kael-gold mx-auto mt-4"></div>
+                </div>
+
+                {isFuture ? (
+                  <div className="py-20 border border-dashed border-kael-gold/30 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm">
+                    <span className="micro-label mb-4">Coming Soon</span>
+                    <p className="text-kael-purple italic">A new artisanal journey is being curated.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-20">
+                    {displayCategories.map(category => {
+                      const categoryProducts = collectionProducts.filter(p => p.category === category.name);
+                      if (categoryProducts.length === 0) return null;
+
+                      return (
+                        <div key={category.id}>
+                          <div className="flex items-baseline gap-4 mb-8 border-b border-kael-ink/10 pb-4">
+                            <h3 className="text-2xl font-bold">{category.name}</h3>
+                            <span className="text-xs uppercase tracking-widest text-kael-purple">
+                              {categoryProducts.length} {hasData ? 'Pieces' : 'Sample Pieces'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                            {categoryProducts.map(product => (
+                              <ProductCard 
+                                key={product.id} 
+                                product={product} 
+                                hasData={hasData}
+                                onClick={() => {
+                                  if (hasData) {
+                                    setSelectedProduct(product);
+                                    setPage('product');
+                                  }
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                {categoryProducts.map(product => (
-                  <ProductCard 
-                    key={product.id} 
-                    product={product} 
-                    hasData={hasData}
-                    onClick={() => {
-                      if (hasData) {
-                        setSelectedProduct(product);
-                        setPage('product');
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
     </motion.div>
   );
@@ -1396,6 +1518,7 @@ const AdminDashboard = ({
     price: 0,
     imageUrls: ['', '', '', '', ''],
     category: '',
+    collection: 'Beyond The Sea',
     description: '',
     craftStory: '',
     materialDetails: '',
@@ -1434,13 +1557,15 @@ const AdminDashboard = ({
     e.preventDefault();
     try {
       if (editingProduct) {
+        const { id, ...productData } = newProduct;
         await updateDoc(doc(db, 'products', editingProduct.id!), {
-          ...newProduct
+          ...productData
         });
         setEditingProduct(null);
       } else {
+        const { id, ...productData } = newProduct;
         await addDoc(collection(db, 'products'), {
-          ...newProduct,
+          ...productData,
           isFeatured: newProduct.isFeatured || false,
           createdAt: new Date().toISOString()
         });
@@ -1451,6 +1576,7 @@ const AdminDashboard = ({
         price: 0, 
         imageUrls: ['', '', '', '', ''], 
         category: '', 
+        collection: 'Beyond The Sea',
         description: '', 
         craftStory: '', 
         materialDetails: '', 
@@ -1471,13 +1597,15 @@ const AdminDashboard = ({
     e.preventDefault();
     try {
       if (editingJournal) {
+        const { id, ...journalData } = newJournal;
         await updateDoc(doc(db, 'journal', editingJournal.id!), {
-          ...newJournal
+          ...journalData
         });
         setEditingJournal(null);
       } else {
+        const { id, ...journalData } = newJournal;
         await addDoc(collection(db, 'journal'), {
-          ...newJournal,
+          ...journalData,
           createdAt: new Date().toISOString()
         });
       }
@@ -1492,13 +1620,15 @@ const AdminDashboard = ({
     e.preventDefault();
     try {
       if (editingCategory) {
+        const { id, ...categoryData } = newCategory;
         await updateDoc(doc(db, 'categories', editingCategory.id!), {
-          ...newCategory
+          ...categoryData
         });
         setEditingCategory(null);
       } else {
+        const { id, ...categoryData } = newCategory;
         await addDoc(collection(db, 'categories'), {
-          ...newCategory,
+          ...categoryData,
           createdAt: new Date().toISOString()
         });
       }
@@ -1513,14 +1643,16 @@ const AdminDashboard = ({
     e.preventDefault();
     try {
       if (editingPage) {
+        const { id, ...pageData } = newPage;
         await updateDoc(doc(db, 'page_content', editingPage.id!), {
-          ...newPage,
+          ...pageData,
           updatedAt: new Date().toISOString()
         });
         setEditingPage(null);
       } else {
+        const { id, ...pageData } = newPage;
         await addDoc(collection(db, 'page_content'), {
-          ...newPage,
+          ...pageData,
           updatedAt: new Date().toISOString()
         });
       }
@@ -1901,7 +2033,7 @@ const AdminDashboard = ({
                     <input 
                       type="text" required
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.name}
+                      value={newProduct.name || ''}
                       onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
                     />
                   </div>
@@ -1910,7 +2042,7 @@ const AdminDashboard = ({
                     <input 
                       type="number" required
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.price}
+                      value={newProduct.price || 0}
                       onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value)})}
                     />
                   </div>
@@ -1922,7 +2054,7 @@ const AdminDashboard = ({
                     <input 
                       type="text"
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.sku}
+                      value={newProduct.sku || ''}
                       onChange={(e) => setNewProduct({...newProduct, sku: e.target.value})}
                     />
                   </div>
@@ -1931,7 +2063,7 @@ const AdminDashboard = ({
                     <input 
                       type="text"
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.tagline}
+                      value={newProduct.tagline || ''}
                       onChange={(e) => setNewProduct({...newProduct, tagline: e.target.value})}
                     />
                   </div>
@@ -1943,7 +2075,7 @@ const AdminDashboard = ({
                     <input 
                       type="text"
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.fitType}
+                      value={newProduct.fitType || ''}
                       onChange={(e) => setNewProduct({...newProduct, fitType: e.target.value})}
                     />
                   </div>
@@ -1952,7 +2084,7 @@ const AdminDashboard = ({
                     <input 
                       type="text"
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.packageContent}
+                      value={newProduct.packageContent || ''}
                       onChange={(e) => setNewProduct({...newProduct, packageContent: e.target.value})}
                     />
                   </div>
@@ -1974,7 +2106,7 @@ const AdminDashboard = ({
                     <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Category</label>
                     <select 
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold bg-white"
-                      value={newProduct.category}
+                      value={newProduct.category || ''}
                       onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
                     >
                       <option value="">Select Category</option>
@@ -1983,27 +2115,40 @@ const AdminDashboard = ({
                       ))}
                     </select>
                   </div>
-                  <div className="flex items-center h-full pt-6">
-                    <label className="flex items-center cursor-pointer group">
-                      <div className="relative">
-                        <input 
-                          type="checkbox" 
-                          className="sr-only"
-                          checked={newProduct.isFeatured}
-                          onChange={(e) => setNewProduct({...newProduct, isFeatured: e.target.checked})}
-                        />
-                        <div className={cn(
-                          "w-10 h-5 bg-kael-paper rounded-full shadow-inner transition-colors",
-                          newProduct.isFeatured ? "bg-kael-gold" : "bg-kael-paper"
-                        )}></div>
-                        <div className={cn(
-                          "absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform",
-                          newProduct.isFeatured ? "translate-x-5" : "translate-x-0"
-                        )}></div>
-                      </div>
-                      <span className="ml-3 text-[10px] uppercase tracking-widest font-bold">Featured Piece</span>
-                    </label>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Collection</label>
+                    <select 
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold bg-white"
+                      value={newProduct.collection || 'Beyond The Sea'}
+                      onChange={(e) => setNewProduct({...newProduct, collection: e.target.value})}
+                    >
+                      <option value="Beyond The Sea">Beyond The Sea</option>
+                      <option value="Future Collection I">Future Collection I</option>
+                      <option value="Future Collection II">Future Collection II</option>
+                    </select>
                   </div>
+                </div>
+
+                <div className="flex items-center h-full pt-6">
+                  <label className="flex items-center cursor-pointer group">
+                    <div className="relative">
+                      <input 
+                        type="checkbox" 
+                        className="sr-only"
+                        checked={newProduct.isFeatured || false}
+                        onChange={(e) => setNewProduct({...newProduct, isFeatured: e.target.checked})}
+                      />
+                      <div className={cn(
+                        "w-10 h-5 bg-kael-paper rounded-full shadow-inner transition-colors",
+                        newProduct.isFeatured ? "bg-kael-gold" : "bg-kael-paper"
+                      )}></div>
+                      <div className={cn(
+                        "absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform",
+                        newProduct.isFeatured ? "translate-x-5" : "translate-x-0"
+                      )}></div>
+                    </div>
+                    <span className="ml-3 text-[10px] uppercase tracking-widest font-bold">Featured Piece</span>
+                  </label>
                 </div>
 
                 <div>
@@ -2033,7 +2178,7 @@ const AdminDashboard = ({
                   <textarea 
                     required
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-24"
-                    value={newProduct.description}
+                    value={newProduct.description || ''}
                     onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
                   />
                 </div>
@@ -2042,7 +2187,7 @@ const AdminDashboard = ({
                   <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Detailed Craft Story</label>
                   <textarea 
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-24"
-                    value={newProduct.craftStory}
+                    value={newProduct.craftStory || ''}
                     onChange={(e) => setNewProduct({...newProduct, craftStory: e.target.value})}
                   />
                 </div>
@@ -2053,7 +2198,7 @@ const AdminDashboard = ({
                     <input 
                       type="text"
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.materialDetails}
+                      value={newProduct.materialDetails || ''}
                       onChange={(e) => setNewProduct({...newProduct, materialDetails: e.target.value})}
                     />
                   </div>
@@ -2062,7 +2207,7 @@ const AdminDashboard = ({
                     <input 
                       type="text"
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newProduct.careInstructions}
+                      value={newProduct.careInstructions || ''}
                       onChange={(e) => setNewProduct({...newProduct, careInstructions: e.target.value})}
                     />
                   </div>
@@ -2103,7 +2248,7 @@ const AdminDashboard = ({
                   <input 
                     type="text" required
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                    value={newCategory.name}
+                    value={newCategory.name || ''}
                     onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
                   />
                 </div>
@@ -2111,7 +2256,7 @@ const AdminDashboard = ({
                   <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Description</label>
                   <textarea 
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-24"
-                    value={newCategory.description}
+                    value={newCategory.description || ''}
                     onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
                   />
                 </div>
@@ -2151,7 +2296,7 @@ const AdminDashboard = ({
                     <input 
                       type="text" required
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newJournal.title}
+                      value={newJournal.title || ''}
                       onChange={(e) => setNewJournal({...newJournal, title: e.target.value})}
                     />
                   </div>
@@ -2160,7 +2305,7 @@ const AdminDashboard = ({
                     <input 
                       type="text" required
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newJournal.date}
+                      value={newJournal.date || ''}
                       onChange={(e) => setNewJournal({...newJournal, date: e.target.value})}
                     />
                   </div>
@@ -2171,7 +2316,7 @@ const AdminDashboard = ({
                   <input 
                     type="url" required
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                    value={newJournal.imageUrl}
+                    value={newJournal.imageUrl || ''}
                     onChange={(e) => setNewJournal({...newJournal, imageUrl: e.target.value})}
                   />
                 </div>
@@ -2181,7 +2326,7 @@ const AdminDashboard = ({
                   <textarea 
                     required
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-24"
-                    value={newJournal.excerpt}
+                    value={newJournal.excerpt || ''}
                     onChange={(e) => setNewJournal({...newJournal, excerpt: e.target.value})}
                   />
                 </div>
@@ -2190,7 +2335,7 @@ const AdminDashboard = ({
                   <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Full Content (Markdown supported)</label>
                   <textarea 
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-48"
-                    value={newJournal.content}
+                    value={newJournal.content || ''}
                     onChange={(e) => setNewJournal({...newJournal, content: e.target.value})}
                   />
                 </div>
@@ -2231,7 +2376,7 @@ const AdminDashboard = ({
                     <input 
                       type="text" required
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newPage.pageId}
+                      value={newPage.pageId || ''}
                       onChange={(e) => setNewPage({...newPage, pageId: e.target.value})}
                     />
                   </div>
@@ -2240,7 +2385,7 @@ const AdminDashboard = ({
                     <input 
                       type="text" required
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newPage.title}
+                      value={newPage.title || ''}
                       onChange={(e) => setNewPage({...newPage, title: e.target.value})}
                     />
                   </div>
@@ -2251,7 +2396,7 @@ const AdminDashboard = ({
                   <input 
                     type="text"
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                    value={newPage.subtitle}
+                    value={newPage.subtitle || ''}
                     onChange={(e) => setNewPage({...newPage, subtitle: e.target.value})}
                   />
                 </div>
@@ -2261,7 +2406,7 @@ const AdminDashboard = ({
                   <input 
                     type="text"
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                    value={newPage.heroImageUrl}
+                    value={newPage.heroImageUrl || ''}
                     onChange={(e) => setNewPage({...newPage, heroImageUrl: e.target.value})}
                   />
                 </div>
@@ -2269,10 +2414,103 @@ const AdminDashboard = ({
                 <div>
                   <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Main Content (Markdown supported)</label>
                   <textarea 
-                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-48"
-                    value={newPage.content}
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-32"
+                    value={newPage.content || ''}
                     onChange={(e) => setNewPage({...newPage, content: e.target.value})}
                   />
+                </div>
+
+                <div className="space-y-6 pt-6 border-t border-kael-gold/10">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-sm font-bold uppercase tracking-widest">Page Sections</h3>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        const sections = [...(newPage.sections || [])];
+                        sections.push({ title: '', content: '', imageUrl: '', imagePosition: 'left' });
+                        setNewPage({ ...newPage, sections });
+                      }}
+                      className="text-[10px] uppercase tracking-widest font-bold text-kael-gold hover:text-kael-ink"
+                    >
+                      + Add Section
+                    </button>
+                  </div>
+
+                  <div className="space-y-10">
+                    {(newPage.sections || []).map((section, idx) => (
+                      <div key={idx} className="p-6 bg-kael-paper/50 border border-kael-gold/10 space-y-4 relative">
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const sections = [...(newPage.sections || [])];
+                            sections.splice(idx, 1);
+                            setNewPage({ ...newPage, sections });
+                          }}
+                          className="absolute top-4 right-4 text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-[8px] uppercase tracking-widest font-bold block mb-1">Section Title</label>
+                            <input 
+                              type="text"
+                              className="w-full border border-kael-gold/20 p-2 text-xs focus:outline-kael-gold"
+                              value={section.title}
+                              onChange={(e) => {
+                                const sections = [...(newPage.sections || [])];
+                                sections[idx].title = e.target.value;
+                                setNewPage({ ...newPage, sections });
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[8px] uppercase tracking-widest font-bold block mb-1">Image Position</label>
+                            <select 
+                              className="w-full border border-kael-gold/20 p-2 text-xs focus:outline-kael-gold"
+                              value={section.imagePosition || 'left'}
+                              onChange={(e) => {
+                                const sections = [...(newPage.sections || [])];
+                                sections[idx].imagePosition = e.target.value as 'left' | 'right';
+                                setNewPage({ ...newPage, sections });
+                              }}
+                            >
+                              <option value="left">Left</option>
+                              <option value="right">Right</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-[8px] uppercase tracking-widest font-bold block mb-1">Image URL</label>
+                          <input 
+                            type="text"
+                            className="w-full border border-kael-gold/20 p-2 text-xs focus:outline-kael-gold"
+                            value={section.imageUrl || ''}
+                            onChange={(e) => {
+                              const sections = [...(newPage.sections || [])];
+                              sections[idx].imageUrl = e.target.value;
+                              setNewPage({ ...newPage, sections });
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-[8px] uppercase tracking-widest font-bold block mb-1">Section Content (Markdown)</label>
+                          <textarea 
+                            className="w-full border border-kael-gold/20 p-2 text-xs focus:outline-kael-gold h-24"
+                            value={section.content}
+                            onChange={(e) => {
+                              const sections = [...(newPage.sections || [])];
+                              sections[idx].content = e.target.value;
+                              setNewPage({ ...newPage, sections });
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
@@ -2457,15 +2695,11 @@ export default function App() {
       setJournalEntries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as JournalEntry)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'journal'));
 
-    const unsubOrders = onSnapshot(collection(db, 'orders'), (snapshot) => {
-      setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order)));
-    }, (error) => handleFirestoreError(error, OperationType.GET, 'orders'));
-
     const unsubPageContent = onSnapshot(collection(db, 'page_content'), (snapshot) => {
       setPageContents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageContent)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'page_content'));
 
-    return () => { unsubProducts(); unsubCategories(); unsubJournal(); unsubOrders(); unsubPageContent(); };
+    return () => { unsubProducts(); unsubCategories(); unsubJournal(); unsubPageContent(); };
   }, []);
 
   useEffect(() => {
@@ -2484,7 +2718,7 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setIsAdmin(u?.email === 'betsiflash@gmail.com');
+      setIsAdmin(u?.email === 'betsiflash@gmail.com' || u?.email === 'Kael21.ae@gmail.com');
     });
     return () => unsubscribe();
   }, []);
@@ -2551,6 +2785,15 @@ export default function App() {
   };
 
   const effectiveIsAdmin = isAdmin || isSimpleAdminLoggedIn;
+
+  useEffect(() => {
+    if (effectiveIsAdmin) {
+      const unsubOrders = onSnapshot(collection(db, 'orders'), (snapshot) => {
+        setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order)));
+      }, (error) => handleFirestoreError(error, OperationType.GET, 'orders'));
+      return () => unsubOrders();
+    }
+  }, [effectiveIsAdmin]);
 
   useEffect(() => {
     const savedCart = localStorage.getItem('kael-cart');

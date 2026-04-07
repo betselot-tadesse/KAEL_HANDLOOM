@@ -30,7 +30,8 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-         (request.auth.token.email == "betsiflash@gmail.com" && request.auth.token.email_verified == true));
+         (request.auth.token.email == "betsiflash@gmail.com" && request.auth.token.email_verified == true) ||
+         (request.auth.token.email == "Kael21.ae@gmail.com" && request.auth.token.email_verified == true));
     }
 
     function isOwner(userId) {
@@ -64,12 +65,13 @@ service cloud.firestore {
     }
 
     function isValidProduct(data) {
-      return hasOnlyAllowedFields(['name', 'description', 'price', 'imageUrls', 'category', 'craftStory', 'materialDetails', 'careInstructions', 'isFeatured', 'createdAt', 'sku', 'tagline', 'fitType', 'packageContent', 'sizes']) &&
+      return hasOnlyAllowedFields(['name', 'description', 'price', 'imageUrls', 'category', 'collection', 'craftStory', 'materialDetails', 'careInstructions', 'isFeatured', 'createdAt', 'sku', 'tagline', 'fitType', 'packageContent', 'sizes']) &&
              data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
              data.description is string && data.description.size() < 1000 &&
              data.price is number && data.price >= 0 &&
              data.imageUrls is list && data.imageUrls.size() <= 5 &&
              data.category is string &&
+             (!('collection' in data) || data.collection is string) &&
              data.craftStory is string &&
              data.materialDetails is string &&
              data.careInstructions is string &&

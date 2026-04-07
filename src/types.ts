@@ -12,6 +12,7 @@ export interface Product {
   price: number;
   imageUrls: string[];
   category: string;
+  collection?: string;
   craftStory: string;
   materialDetails: string;
   careInstructions: string;
