@@ -85,6 +85,32 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["uid", "viewedProductIds", "viewedJournalIds", "preferredCategories", "updatedAt"]
+    },
+    "PageContent": {
+      "title": "Page Content",
+      "description": "Stores content for static pages like About, Craft, and Contact",
+      "type": "object",
+      "properties": {
+        "pageId": { "type": "string", "description": "Identifier for the page (e.g., 'about', 'craft')" },
+        "title": { "type": "string", "description": "Main title of the page" },
+        "subtitle": { "type": "string", "description": "Subtitle or hero text" },
+        "heroImageUrl": { "type": "string", "description": "URL of the hero image" },
+        "content": { "type": "string", "description": "Main text content" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "content": { "type": "string" },
+              "imageUrl": { "type": "string" },
+              "imagePosition": { "type": "string", "enum": ["left", "right"] }
+            }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["pageId", "title", "updatedAt"]
     }
   },
   "firestore": {
@@ -111,6 +137,10 @@
     "user_activity": {
       "schema": "UserActivity",
       "description": "User browsing history and preferences"
+    },
+    "page_content": {
+      "schema": "PageContent",
+      "description": "Collection of page contents"
     }
   }
 }

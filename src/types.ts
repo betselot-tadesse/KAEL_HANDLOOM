@@ -67,4 +67,20 @@ export interface UserActivity {
   updatedAt: string;
 }
 
+export interface PageContent {
+  id?: string;
+  pageId: string; // 'about', 'craft', 'contact', 'journal', 'collections'
+  title: string;
+  subtitle?: string;
+  heroImageUrl?: string;
+  content?: string;
+  sections?: {
+    title: string;
+    content: string;
+    imageUrl?: string;
+    imagePosition?: 'left' | 'right';
+  }[];
+  updatedAt: string;
+}
+
 export type Page = 'home' | 'collections' | 'craft' | 'about' | 'journal' | 'contact' | 'cart' | 'product' | 'admin' | 'login';

@@ -20,6 +20,7 @@ import {
   User as UserIcon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { 
   collection, 
   addDoc, 
@@ -151,7 +152,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return this.props.children;
   }
 }
-import { Product, Order, OrderItem, Category, Page, UserProfile, JournalEntry, UserActivity } from './types';
+import { Product, Order, OrderItem, Category, Page, UserProfile, JournalEntry, UserActivity, PageContent } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -696,7 +697,58 @@ const Home = ({
   );
 };
 
-const About = () => {
+const About = ({ pageContents }: { pageContents: PageContent[] }) => {
+  const content = pageContents.find(p => p.pageId === 'about');
+
+  if (!content) {
+    return (
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        exit={{ opacity: 0 }}
+        className="bg-kael-paper"
+      >
+        {/* Hero Section */}
+        <section className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
+          <img 
+            src="https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000" 
+            alt="Handloom Weaving" 
+            className="w-full h-full object-cover brightness-75"
+          />
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-6">
+            <motion.span 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="micro-label text-white/80"
+            >
+              Our Story
+            </motion.span>
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-5xl md:text-7xl font-bold tracking-tight"
+            >
+              About KAEL
+            </motion.h1>
+          </div>
+        </section>
+
+        {/* Content Section 1 */}
+        <section className="py-32 px-6 md:px-24 bg-white">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="micro-label">The Beginning</span>
+            <h2 className="serif-display mb-8">A Quiet Desire</h2>
+            <p className="text-lg text-kael-purple leading-loose italic">
+              "KAEL was born from a quiet desire — to create clothing that feels meaningful in a world of excess."
+            </p>
+          </div>
+        </section>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -704,11 +756,10 @@ const About = () => {
       exit={{ opacity: 0 }}
       className="bg-kael-paper"
     >
-      {/* Hero Section */}
       <section className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
         <img 
-          src="https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000" 
-          alt="Handloom Weaving" 
+          src={content.heroImageUrl || "https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000"} 
+          alt={content.title} 
           className="w-full h-full object-cover brightness-75"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-6">
@@ -718,7 +769,7 @@ const About = () => {
             transition={{ delay: 0.3 }}
             className="micro-label text-white/80"
           >
-            Our Story
+            {content.subtitle}
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -726,80 +777,101 @@ const About = () => {
             transition={{ delay: 0.5 }}
             className="text-5xl md:text-7xl font-bold tracking-tight"
           >
-            About KAEL
+            {content.title}
           </motion.h1>
         </div>
       </section>
 
-      {/* Content Section 1 */}
       <section className="py-32 px-6 md:px-24 bg-white">
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div>
-              <span className="micro-label">The Beginning</span>
-              <h2 className="serif-display mb-8">A Quiet Desire</h2>
-              <p className="text-lg text-kael-purple leading-loose italic">
-                "KAEL was born from a quiet desire — to create clothing that feels meaningful in a world of excess."
-              </p>
-            </div>
-            <div className="aspect-[4/5] overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1606103920295-9a091573f160?auto=format&fit=crop&q=80&w=1000" 
-                alt="Textile Detail" 
-                className="w-full h-full object-cover"
-              />
-            </div>
+          <div className="prose prose-kael max-w-none">
+            <ReactMarkdown>{content.content || ''}</ReactMarkdown>
           </div>
         </div>
       </section>
+    </motion.div>
+  );
+};
 
-      {/* Content Section 2 - Full Width Text */}
-      <section className="py-32 px-6 md:px-24 bg-kael-paper">
-        <div className="max-w-3xl mx-auto text-center">
-          <p className="text-xl md:text-2xl text-kael-ink leading-relaxed font-light mb-12">
-            In a time where fashion often moves too fast and feels increasingly uniform, KAEL chooses a different path. One that values time, intention, and the beauty of things made by hand.
-          </p>
-          <div className="w-24 h-[1px] bg-kael-gold mx-auto mb-12" />
-          <p className="text-lg text-kael-purple leading-loose">
-            At the heart of KAEL lies handloom — fabrics woven with patience, carrying a natural texture and depth that no machine can replicate. These textiles become the foundation of each piece, brought to life through delicate hand embroidery, added slowly and thoughtfully, never to overwhelm, but to enhance.
-          </p>
+const Craft = ({ pageContents }: { pageContents: PageContent[] }) => {
+  const content = pageContents.find(p => p.pageId === 'craft');
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="pt-48 pb-32 px-6 md:px-12 bg-kael-paper min-h-screen"
+    >
+      <div className="max-w-4xl mx-auto text-center">
+        <span className="micro-label">{content?.subtitle || 'The Art of Making'}</span>
+        <h1 className="serif-display mt-4 mb-12">{content?.title || 'Our Craft'}</h1>
+        <div className="prose prose-kael max-w-none text-left">
+          {content ? (
+            <ReactMarkdown>{content.content || ''}</ReactMarkdown>
+          ) : (
+            <p className="text-kael-purple italic">This section is currently being curated to reflect the highest standards of handloom luxury.</p>
+          )}
         </div>
-      </section>
+      </div>
+    </motion.div>
+  );
+};
 
-      {/* Content Section 3 - Image & Text */}
-      <section className="py-32 px-6 md:px-24 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
-            <div className="order-2 md:order-1 aspect-[3/4] overflow-hidden">
-              <img 
-                src="https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&q=80&w=1000" 
-                alt="Artisan at work" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="order-1 md:order-2">
-              <span className="micro-label">The Integrity</span>
-              <h2 className="text-3xl font-bold mb-8 tracking-tight">Limited by Nature</h2>
-              <p className="text-sm text-kael-purple leading-loose mb-8">
-                Every garment is created in limited numbers, not just for exclusivity, but to preserve the integrity of the process. Behind each piece are skilled hands, quiet dedication, and stories woven into every thread.
-              </p>
-              <p className="text-sm text-kael-purple leading-loose">
-                KAEL is deeply rooted in craftsmanship, yet shaped for the present. It reimagines traditional techniques through a modern lens — creating silhouettes that are refined, effortless, and timeless.
-              </p>
-            </div>
+const Contact = ({ pageContents }: { pageContents: PageContent[] }) => {
+  const content = pageContents.find(p => p.pageId === 'contact');
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      exit={{ opacity: 0 }}
+      className="pt-48 pb-32 px-6 md:px-12 bg-kael-paper min-h-screen"
+    >
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-16">
+          <span className="micro-label">{content?.subtitle || 'Connect With Us'}</span>
+          <h1 className="serif-display mt-4 mb-8">{content?.title || 'Contact the Atelier'}</h1>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+          <div className="prose prose-kael">
+            {content ? (
+              <ReactMarkdown>{content.content || ''}</ReactMarkdown>
+            ) : (
+              <>
+                <h3 className="text-lg font-bold mb-4">Inquiries</h3>
+                <p className="text-kael-purple mb-8">For bespoke requests, collection inquiries, or to visit our atelier, please reach out via WhatsApp or Email.</p>
+                
+                <div className="space-y-4 text-sm">
+                  <p><strong>WhatsApp:</strong> +971 569728661</p>
+                  <p><strong>Email:</strong> atelier@kael.com</p>
+                  <p><strong>Location:</strong> Dubai, UAE</p>
+                </div>
+              </>
+            )}
+          </div>
+          
+          <div className="bg-white p-10 shadow-sm border border-kael-gold/10">
+            <h3 className="text-sm font-bold uppercase tracking-widest mb-8">Send a Message</h3>
+            <form className="space-y-6">
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Name</label>
+                <input type="text" className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold" />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Email</label>
+                <input type="email" className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold" />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Message</label>
+                <textarea className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold h-32"></textarea>
+              </div>
+              <button type="button" className="btn-luxury w-full">Send Inquiry</button>
+            </form>
           </div>
         </div>
-      </section>
-
-      {/* Quote Section */}
-      <section className="py-40 px-6 md:px-24 bg-kael-ink text-white text-center">
-        <div className="max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 tracking-tighter leading-tight">
-            "Clothing that feels meaningful in a world of excess."
-          </h2>
-          <span className="micro-label text-white/60">The KAEL Manifesto</span>
-        </div>
-      </section>
+      </div>
     </motion.div>
   );
 };
@@ -1152,14 +1224,17 @@ const Collections = ({
   categories, 
   setPage, 
   setSelectedProduct,
-  searchQuery
+  searchQuery,
+  pageContents
 }: { 
   products: Product[], 
   categories: Category[], 
   setPage: (p: Page) => void, 
   setSelectedProduct: (p: Product) => void,
-  searchQuery: string
+  searchQuery: string,
+  pageContents: PageContent[]
 }) => {
+  const content = pageContents.find(p => p.pageId === 'collections');
   const hasData = products.length > 0;
   
   // Static samples to show if database is empty
@@ -1294,22 +1369,26 @@ const AdminDashboard = ({
   products,
   orders,
   journalEntries,
-  categories
+  categories,
+  pageContents
 }: { 
   setPage: (p: Page) => void, 
   setIsSimpleAdminLoggedIn: (b: boolean) => void,
   products: Product[],
   orders: Order[],
   journalEntries: JournalEntry[],
-  categories: Category[]
+  categories: Category[],
+  pageContents: PageContent[]
 }) => {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'journal' | 'categories'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'journal' | 'categories' | 'pages'>('products');
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingJournal, setIsAddingJournal] = useState(false);
   const [editingJournal, setEditingJournal] = useState<JournalEntry | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isAddingPage, setIsAddingPage] = useState(false);
+  const [editingPage, setEditingPage] = useState<PageContent | null>(null);
   
   // Form State
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
@@ -1340,6 +1419,15 @@ const AdminDashboard = ({
   const [newCategory, setNewCategory] = useState<Partial<Category>>({
     name: '',
     description: ''
+  });
+
+  const [newPage, setNewPage] = useState<Partial<PageContent>>({
+    pageId: '',
+    title: '',
+    subtitle: '',
+    heroImageUrl: '',
+    content: '',
+    sections: []
   });
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -1421,6 +1509,28 @@ const AdminDashboard = ({
     }
   };
 
+  const handleAddPage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingPage) {
+        await updateDoc(doc(db, 'page_content', editingPage.id!), {
+          ...newPage,
+          updatedAt: new Date().toISOString()
+        });
+        setEditingPage(null);
+      } else {
+        await addDoc(collection(db, 'page_content'), {
+          ...newPage,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      setIsAddingPage(false);
+      setNewPage({ pageId: '', title: '', subtitle: '', heroImageUrl: '', content: '', sections: [] });
+    } catch (err) {
+      handleFirestoreError(err, editingPage ? OperationType.UPDATE : OperationType.CREATE, 'page_content');
+    }
+  };
+
   const handleDeleteProduct = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'products', id));
@@ -1445,6 +1555,14 @@ const AdminDashboard = ({
     }
   };
 
+  const handleDeletePage = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'page_content', id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, `page_content/${id}`);
+    }
+  };
+
   const handleEditProduct = (product: Product) => {
     setEditingProduct(product);
     setNewProduct(product);
@@ -1461,6 +1579,12 @@ const AdminDashboard = ({
     setEditingCategory(category);
     setNewCategory(category);
     setIsAddingCategory(true);
+  };
+
+  const handleEditPage = (page: PageContent) => {
+    setEditingPage(page);
+    setNewPage(page);
+    setIsAddingPage(true);
   };
 
   const handleUpdateOrderStatus = async (id: string, status: Order['status']) => {
@@ -1503,6 +1627,12 @@ const AdminDashboard = ({
               className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'categories' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
             >
               Categories
+            </button>
+            <button 
+              onClick={() => setActiveTab('pages')}
+              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'pages' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+            >
+              Pages
             </button>
             <button 
               onClick={() => setPage('home')}
@@ -1651,7 +1781,7 @@ const AdminDashboard = ({
               </tbody>
             </table>
           </div>
-        ) : (
+        ) : activeTab === 'journal' ? (
           <div>
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-bold">Journal Management</h2>
@@ -1686,6 +1816,51 @@ const AdminDashboard = ({
                       </button>
                       <button 
                         onClick={() => handleDeleteJournal(entry.id!)}
+                        className="text-[10px] uppercase tracking-widest font-bold text-red-500 hover:text-red-700"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold">Page Content Management</h2>
+              <button 
+                onClick={() => {
+                  setEditingPage(null);
+                  setNewPage({ pageId: '', title: '', subtitle: '', heroImageUrl: '', content: '', sections: [] });
+                  setIsAddingPage(true);
+                }}
+                className="btn-luxury bg-kael-gold text-white border-none flex items-center"
+              >
+                <Plus size={16} className="mr-2" /> New Page
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {pageContents.map((page) => (
+                <div key={page.id} className="bg-white p-6 shadow-sm border border-kael-gold/5 flex space-x-6">
+                  <div className="w-24 h-24 bg-kael-paper flex-shrink-0 overflow-hidden">
+                    <img src={page.heroImageUrl || 'https://via.placeholder.com/150'} alt={page.title} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex-grow">
+                    <span className="text-[10px] uppercase text-kael-gold font-bold">{page.pageId}</span>
+                    <h3 className="font-bold text-sm mt-1">{page.title}</h3>
+                    <p className="text-xs text-kael-purple mt-2 line-clamp-2">{page.subtitle}</p>
+                    <div className="flex space-x-4 mt-4">
+                      <button 
+                        onClick={() => handleEditPage(page)}
+                        className="text-[10px] uppercase tracking-widest font-bold hover:text-kael-gold"
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => handleDeletePage(page.id!)}
                         className="text-[10px] uppercase tracking-widest font-bold text-red-500 hover:text-red-700"
                       >
                         Delete
@@ -2028,11 +2203,93 @@ const AdminDashboard = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Page Content Modal */}
+      <AnimatePresence>
+        {isAddingPage && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-kael-ink/50 backdrop-blur-sm flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white max-w-2xl w-full p-10 shadow-2xl overflow-y-auto max-h-[90vh]"
+            >
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold">{editingPage ? 'Edit Page Content' : 'Add New Page Content'}</h2>
+                <button onClick={() => { setIsAddingPage(false); setEditingPage(null); setNewPage({ pageId: '', title: '', subtitle: '', heroImageUrl: '', content: '', sections: [] }); }}><X size={24} /></button>
+              </div>
+
+              <form onSubmit={handleAddPage} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Page ID (e.g., about, craft, contact)</label>
+                    <input 
+                      type="text" required
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                      value={newPage.pageId}
+                      onChange={(e) => setNewPage({...newPage, pageId: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Page Title</label>
+                    <input 
+                      type="text" required
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                      value={newPage.title}
+                      onChange={(e) => setNewPage({...newPage, title: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Subtitle / Hero Text</label>
+                  <input 
+                    type="text"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newPage.subtitle}
+                    onChange={(e) => setNewPage({...newPage, subtitle: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Hero Image URL</label>
+                  <input 
+                    type="text"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newPage.heroImageUrl}
+                    onChange={(e) => setNewPage({...newPage, heroImageUrl: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Main Content (Markdown supported)</label>
+                  <textarea 
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-48"
+                    value={newPage.content}
+                    onChange={(e) => setNewPage({...newPage, content: e.target.value})}
+                  />
+                </div>
+
+                <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
+                  {editingPage ? 'Update Page Content' : 'Save Page Content'}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-const Journal = ({ setPage, journalEntries, trackView }: { setPage: (p: Page) => void, journalEntries: JournalEntry[], trackView: (type: 'product' | 'journal', id: string) => void }) => {
+const Journal = ({ setPage, journalEntries, trackView, pageContents }: { setPage: (p: Page) => void, journalEntries: JournalEntry[], trackView: (type: 'product' | 'journal', id: string) => void, pageContents: PageContent[] }) => {
+  const content = pageContents.find(p => p.pageId === 'journal');
+
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
@@ -2042,10 +2299,10 @@ const Journal = ({ setPage, journalEntries, trackView }: { setPage: (p: Page) =>
     >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-24">
-          <span className="micro-label">Editorial</span>
-          <h1 className="serif-display">The KAEL Journal</h1>
+          <span className="micro-label">{content?.subtitle || 'Editorial'}</span>
+          <h1 className="serif-display">{content?.title || 'The KAEL Journal'}</h1>
           <p className="mt-6 text-kael-purple max-w-xl mx-auto italic">
-            Exploring the intersection of heritage, craftsmanship, and modern luxury.
+            {content?.content || 'Exploring the intersection of heritage, craftsmanship, and modern luxury.'}
           </p>
         </div>
 
@@ -2184,6 +2441,7 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [pageContents, setPageContents] = useState<PageContent[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
@@ -2203,7 +2461,11 @@ export default function App() {
       setOrders(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'orders'));
 
-    return () => { unsubProducts(); unsubCategories(); unsubJournal(); unsubOrders(); };
+    const unsubPageContent = onSnapshot(collection(db, 'page_content'), (snapshot) => {
+      setPageContents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageContent)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'page_content'));
+
+    return () => { unsubProducts(); unsubCategories(); unsubJournal(); unsubOrders(); unsubPageContent(); };
   }, []);
 
   useEffect(() => {
@@ -2330,13 +2592,15 @@ export default function App() {
   const renderPage = () => {
     switch (page) {
       case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} journalEntries={journalEntries} userActivity={userActivity} trackView={trackView} />;
-      case 'about': return <About />;
+      case 'about': return <About pageContents={pageContents} />;
+      case 'craft': return <Craft pageContents={pageContents} />;
+      case 'contact': return <Contact pageContents={pageContents} />;
       case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} journalEntries={journalEntries} userActivity={userActivity} trackView={trackView} />;
       case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} />;
-      case 'journal': return <Journal setPage={setPage} journalEntries={journalEntries} trackView={trackView} />;
+      case 'journal': return <Journal setPage={setPage} journalEntries={journalEntries} trackView={trackView} pageContents={pageContents} />;
       case 'login': return <LoginPage onLogin={() => setPage(effectiveIsAdmin ? 'admin' : 'home')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} journalEntries={journalEntries} categories={categories} /> : <LoginPage onLogin={() => setPage('admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'collections': return <Collections products={products} categories={categories} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} />;
+      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} journalEntries={journalEntries} categories={categories} pageContents={pageContents} /> : <LoginPage onLogin={() => setPage('admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
+      case 'collections': return <Collections products={products} categories={categories} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} />;
       default: return (
         <div className="pt-48 pb-32 px-6 text-center">
           <span className="micro-label">{page}</span>

@@ -117,6 +117,11 @@ service cloud.firestore {
     }
 
     // User Activity: User can read/write their own
+    match /page_content/{pageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /user_activity/{userId} {
       allow read: if isOwner(userId);
       allow create, update: if isOwner(userId) && isValidUserActivity(request.resource.data);
