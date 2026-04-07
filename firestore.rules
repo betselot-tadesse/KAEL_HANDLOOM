@@ -29,7 +29,7 @@ service cloud.firestore {
 
     function isAdmin() {
       return isAuthenticated() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
          (request.auth.token.email == "betsiflash@gmail.com" && request.auth.token.email_verified == true));
     }
 
@@ -37,29 +37,89 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    // Products: Publicly readable, Publicly writable (for simple admin)
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // Domain Validators
+    function isValidUserActivity(data) {
+      return hasOnlyAllowedFields(['uid', 'viewedProductIds', 'viewedJournalIds', 'preferredCategories', 'updatedAt']) &&
+             data.uid is string &&
+             data.viewedProductIds is list &&
+             data.viewedJournalIds is list &&
+             data.preferredCategories is list &&
+             data.updatedAt is string;
+    }
+
+    function isValidUserProfile(data) {
+      return hasOnlyAllowedFields(['uid', 'email', 'role']) &&
+             data.uid is string &&
+             data.email is string && isValidEmail(data.email) &&
+             data.role in ['admin', 'user'];
+    }
+
+    function isValidProduct(data) {
+      return hasOnlyAllowedFields(['name', 'description', 'price', 'imageUrls', 'category', 'craftStory', 'materialDetails', 'careInstructions', 'isFeatured', 'createdAt', 'sku', 'tagline', 'fitType', 'packageContent', 'sizes']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.description is string && data.description.size() < 1000 &&
+             data.price is number && data.price >= 0 &&
+             data.imageUrls is list && data.imageUrls.size() <= 5 &&
+             data.category is string &&
+             data.craftStory is string &&
+             data.materialDetails is string &&
+             data.careInstructions is string &&
+             (data.isFeatured == null || data.isFeatured is bool) &&
+             data.createdAt is string &&
+             (!('sku' in data) || data.sku is string) &&
+             (!('tagline' in data) || data.tagline is string) &&
+             (!('fitType' in data) || data.fitType is string) &&
+             (!('packageContent' in data) || data.packageContent is string) &&
+             (!('sizes' in data) || data.sizes is list);
+    }
+
+    // Products: Publicly readable, Admin can write
     match /products/{productId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidProduct(request.resource.data);
+      allow delete: if isAdmin();
     }
 
-    // Categories: Publicly readable, Publicly writable (for simple admin)
+    // Categories: Publicly readable, Admin can write
     match /categories/{categoryId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // Journal: Publicly readable, Publicly writable (for simple admin)
+    // Journal: Publicly readable, Admin can write
     match /journal/{articleId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    // Orders: Publicly readable, Publicly writable (for simple admin)
+    // Orders: User can create, Admin can read/write all
     match /orders/{orderId} {
-      allow read, write: if true;
+      allow read: if isAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      allow create: if true; // Allow guest checkout for now, but validate if possible
+      allow update, delete: if isAdmin();
     }
 
     // Users: User can read/write their own, Admin can read/write all
     match /users/{userId} {
-      allow read, write: if isAdmin() || isOwner(userId);
+      allow read: if isAdmin() || isOwner(userId);
+      allow create: if isAuthenticated() && isValidUserProfile(request.resource.data) && ((isOwner(userId) && request.resource.data.role == 'user') || isAdmin());
+      allow update: if isAuthenticated() && isValidUserProfile(request.resource.data) && ((isOwner(userId) && request.resource.data.role == resource.data.role) || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    // User Activity: User can read/write their own
+    match /user_activity/{userId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId) && isValidUserActivity(request.resource.data);
     }
 
     // Test Connection: Publicly readable for diagnostics

@@ -13,6 +13,12 @@
         "craftStory": { "type": "string", "description": "Detailed story of the craft" },
         "materialDetails": { "type": "string", "description": "Details about the materials used" },
         "careInstructions": { "type": "string", "description": "How to care for the textile" },
+        "sku": { "type": "string", "description": "Stock Keeping Unit" },
+        "tagline": { "type": "string", "description": "Product tagline" },
+        "fitType": { "type": "string", "description": "Fit type (e.g., Regular, Relaxed)" },
+        "packageContent": { "type": "string", "description": "What is included in the package" },
+        "sizes": { "type": "array", "items": { "type": "string" }, "description": "Available sizes" },
+        "isFeatured": { "type": "boolean", "description": "Whether the product is featured on the home page" },
         "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
       },
       "required": ["name", "price", "imageUrls", "category"]
@@ -64,7 +70,21 @@
         "description": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name"]
+      "required": ["name"],
+      "description": "Product category"
+    },
+    "UserActivity": {
+      "title": "User Activity",
+      "description": "User browsing history and preferences",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "viewedProductIds": { "type": "array", "items": { "type": "string" } },
+        "viewedJournalIds": { "type": "array", "items": { "type": "string" } },
+        "preferredCategories": { "type": "array", "items": { "type": "string" } },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "viewedProductIds", "viewedJournalIds", "preferredCategories", "updatedAt"]
     }
   },
   "firestore": {
@@ -87,6 +107,10 @@
     "categories": {
       "schema": "Category",
       "description": "Product categories"
+    },
+    "user_activity": {
+      "schema": "UserActivity",
+      "description": "User browsing history and preferences"
     }
   }
 }

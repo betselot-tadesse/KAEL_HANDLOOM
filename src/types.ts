@@ -15,6 +15,12 @@ export interface Product {
   craftStory: string;
   materialDetails: string;
   careInstructions: string;
+  sku?: string;
+  tagline?: string;
+  fitType?: string;
+  packageContent?: string;
+  sizes?: string[];
+  isFeatured?: boolean;
   createdAt: string;
 }
 
@@ -24,6 +30,7 @@ export interface OrderItem {
   price: number;
   quantity: number;
   imageUrls: string[];
+  sku?: string;
 }
 
 export interface Order {
@@ -50,6 +57,14 @@ export interface JournalEntry {
   excerpt: string;
   content: string;
   createdAt: string;
+}
+
+export interface UserActivity {
+  uid: string;
+  viewedProductIds: string[];
+  viewedJournalIds: string[];
+  preferredCategories: string[];
+  updatedAt: string;
 }
 
 export type Page = 'home' | 'collections' | 'craft' | 'about' | 'journal' | 'contact' | 'cart' | 'product' | 'admin' | 'login';
