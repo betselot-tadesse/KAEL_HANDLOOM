@@ -9,8 +9,8 @@
         "description": { "type": "string", "description": "Short craftsmanship story" },
         "price": { "type": "number", "description": "Product price" },
         "imageUrls": { "type": "array", "items": { "type": "string" }, "description": "URLs of the product images from different angles" },
-        "category": { "type": "string", "enum": ["Mens Wear", "Womens Wear", "Modest"], "description": "Product category" },
-        "collection": { "type": "string", "enum": ["Beyond The Sea", "Future Collection I", "Future Collection II"], "description": "Product collection" },
+        "category": { "type": "string", "description": "Product category" },
+        "collection": { "type": "string", "description": "Product collection" },
         "craftStory": { "type": "string", "description": "Detailed story of the craft" },
         "materialDetails": { "type": "string", "description": "Details about the materials used" },
         "careInstructions": { "type": "string", "description": "How to care for the textile" },
@@ -48,19 +48,32 @@
       },
       "required": ["email", "role"]
     },
-    "JournalEntry": {
-      "title": "Journal Entry",
-      "description": "An editorial article for the KAEL journal",
+    "Collection": {
+      "title": "Collection",
+      "description": "A curated collection of products",
       "type": "object",
       "properties": {
-        "title": { "type": "string" },
-        "date": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
         "imageUrl": { "type": "string" },
-        "excerpt": { "type": "string" },
-        "content": { "type": "string" },
+        "isFeatured": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["title", "date", "imageUrl", "excerpt"]
+      "required": ["name"]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "Customer feedback",
+      "type": "object",
+      "properties": {
+        "customerName": { "type": "string" },
+        "content": { "type": "string" },
+        "location": { "type": "string" },
+        "avatarUrl": { "type": "string" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["customerName", "content"]
     },
     "Category": {
       "title": "Category",
@@ -71,8 +84,7 @@
         "description": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["name"],
-      "description": "Product category"
+      "required": ["name"]
     },
     "UserActivity": {
       "title": "User Activity",
@@ -81,11 +93,10 @@
       "properties": {
         "uid": { "type": "string" },
         "viewedProductIds": { "type": "array", "items": { "type": "string" } },
-        "viewedJournalIds": { "type": "array", "items": { "type": "string" } },
         "preferredCategories": { "type": "array", "items": { "type": "string" } },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["uid", "viewedProductIds", "viewedJournalIds", "preferredCategories", "updatedAt"]
+      "required": ["uid", "viewedProductIds", "preferredCategories", "updatedAt"]
     },
     "PageContent": {
       "title": "Page Content",
@@ -127,9 +138,13 @@
       "schema": "User",
       "description": "User profiles and roles"
     },
-    "journal": {
-      "schema": "JournalEntry",
-      "description": "Journal articles"
+    "collections": {
+      "schema": "Collection",
+      "description": "Curated collections"
+    },
+    "testimonials": {
+      "schema": "Testimonial",
+      "description": "Customer testimonials"
     },
     "categories": {
       "schema": "Category",

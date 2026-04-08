@@ -154,7 +154,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return this.props.children;
   }
 }
-import { Product, Order, OrderItem, Category, Page, UserProfile, JournalEntry, UserActivity, PageContent } from './types';
+import { Product, Order, OrderItem, Category, Page, UserProfile, Collection, Testimonial, UserActivity, PageContent } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -201,7 +201,6 @@ const Navbar = ({ currentPage, setPage, cartCount, user, isAdmin, searchQuery, s
     { label: 'Collections', page: 'collections' },
     { label: 'Craft', page: 'craft' },
     { label: 'About', page: 'about' },
-    { label: 'Journal', page: 'journal' },
     { label: 'Contact', page: 'contact' },
   ];
 
@@ -430,29 +429,103 @@ const ProductCard = ({ product, hasData, onClick }: { product: Product, hasData:
 
 // --- Pages ---
 
+const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) => {
+  const defaultTestimonials: Testimonial[] = [
+    {
+      customerName: "Avinash Kr",
+      content: "The craftsmanship of the handloom silk is unlike anything I've ever worn. It feels like wearing a piece of history and the attention to detail is breathtaking.",
+      location: "Co-Founder at xyz",
+      avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200",
+      rating: 5,
+      createdAt: new Date().toISOString()
+    },
+    {
+      customerName: "Bharat Kunal",
+      content: "KAEL's attention to detail in their embroidery is breathtaking. Each piece is truly a work of art. I highly recommend their collections for anyone seeking quality.",
+      location: "Manager at xyz",
+      avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200",
+      rating: 5,
+      createdAt: new Date().toISOString()
+    },
+    {
+      customerName: "Prabhakar D",
+      content: "I appreciate the slow fashion approach. Knowing that my tunic was woven over 45 days makes it so much more meaningful. The quality is simply unparalleled.",
+      location: "Founder / CEO at xyz",
+      avatarUrl: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&q=80&w=200",
+      rating: 5,
+      createdAt: new Date().toISOString()
+    }
+  ];
+
+  const displayTestimonials = testimonials.length > 0 ? testimonials.slice(0, 3) : defaultTestimonials;
+
+  return (
+    <section className="py-32 px-6 md:px-12 bg-white">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl font-bold text-kael-gold uppercase tracking-tighter mb-4">Testimonials</h2>
+          <div className="w-24 h-1 bg-kael-gold mx-auto mb-8"></div>
+          <p className="text-kael-purple text-sm max-w-2xl mx-auto">
+            What our valued customers say about their experience with KAEL's handcrafted luxury.
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 pt-12">
+          {displayTestimonials.map((testimonial, idx) => (
+            <div key={testimonial.id || idx} className="relative bg-gray-50 p-10 pt-16 shadow-sm hover:shadow-md transition-shadow duration-300">
+              {/* Avatar */}
+              <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 rounded-full border-4 border-white overflow-hidden shadow-lg bg-white">
+                <img 
+                  src={testimonial.avatarUrl || `https://ui-avatars.com/api/?name=${testimonial.customerName}&background=random`} 
+                  alt={testimonial.customerName}
+                  className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              
+              {/* Quote Mark Start */}
+              <div className="text-kael-gold text-4xl font-serif absolute top-12 left-6 opacity-30">“</div>
+              
+              <div className="text-center">
+                <p className="text-kael-purple text-sm leading-relaxed mb-8 italic">
+                  {testimonial.content}
+                </p>
+                
+                {/* Quote Mark End */}
+                <div className="text-kael-gold text-4xl font-serif inline-block opacity-30 -mt-4">”</div>
+                
+                <div className="mt-6">
+                  <h4 className="text-kael-gold font-bold text-lg">{testimonial.customerName}</h4>
+                  <p className="text-kael-ink text-[10px] uppercase tracking-widest mt-1">{testimonial.location}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Home = ({ 
   setPage, 
   setSelectedProduct,
   products,
-  journalEntries,
+  testimonials,
   userActivity,
   trackView
 }: { 
   setPage: (p: Page) => void, 
   setSelectedProduct: (p: Product) => void,
   products: Product[],
-  journalEntries: JournalEntry[],
+  testimonials: Testimonial[],
   userActivity: UserActivity | null,
-  trackView: (type: 'product' | 'journal', id: string, category?: string) => void
+  trackView: (type: 'product' | 'collection', id: string, category?: string) => void
 }) => {
   const featuredProducts = products
     .filter(p => p.isFeatured)
     .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
     .slice(0, 4);
-  
-  const latestJournalEntries = [...journalEntries]
-    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-    .slice(0, 3);
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -515,11 +588,13 @@ const Home = ({
         </div>
       </section>
 
+      {/* Testimonials */}
+      <Testimonials testimonials={testimonials} />
+
       {/* Personalized Feed */}
       <PersonalizedFeed 
         userActivity={userActivity} 
         products={products} 
-        journalEntries={journalEntries} 
         setPage={setPage} 
         setSelectedProduct={setSelectedProduct} 
         trackView={trackView}
@@ -660,41 +735,6 @@ const Home = ({
         </div>
       </section>
 
-      {/* Journal */}
-      <section className="py-32 px-6 md:px-12 bg-kael-paper">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-20">
-            <span className="micro-label">Editorial</span>
-            <h2 className="serif-display">The KAEL Journal</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {journalEntries.length > 0 ? journalEntries.map((article) => (
-              <div 
-                key={article.id} 
-                className="group cursor-pointer" 
-                onClick={() => {
-                  trackView('journal', article.id!);
-                  setPage('journal');
-                }}
-              >
-                <div className="aspect-video overflow-hidden mb-6">
-                  <img src={article.imageUrl} alt={article.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-                <span className="text-[10px] uppercase tracking-widest text-kael-gold">{article.date}</span>
-                <h3 className="text-lg font-bold mt-3 group-hover:text-kael-gold transition-colors">{article.title}</h3>
-                <p className="mt-4 text-sm text-kael-purple leading-relaxed line-clamp-2">
-                  {article.excerpt}
-                </p>
-              </div>
-            )) : (
-              <div className="col-span-full text-center py-20 text-kael-purple italic">
-                Our journal is being written...
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
     </motion.div>
   );
 };
@@ -1048,7 +1088,7 @@ For bespoke requests, collection inquiries, or to visit our atelier, please reac
   );
 };
 
-const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Product, setPage: (p: Page) => void, addToCart: (p: Product) => void, trackView: (type: 'product' | 'journal', id: string, category?: string) => void }) => {
+const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Product, setPage: (p: Page) => void, addToCart: (p: Product) => void, trackView: (type: 'product' | 'collection', id: string, category?: string) => void }) => {
   const [selectedImage, setSelectedImage] = useState(product.imageUrls[0]);
 
   useEffect(() => {
@@ -1445,6 +1485,7 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: () =>
 const Collections = ({ 
   products, 
   categories, 
+  collections,
   setPage, 
   setSelectedProduct,
   searchQuery,
@@ -1452,6 +1493,7 @@ const Collections = ({
 }: { 
   products: Product[], 
   categories: Category[], 
+  collections: Collection[],
   setPage: (p: Page) => void, 
   setSelectedProduct: (p: Product) => void,
   searchQuery: string,
@@ -1546,7 +1588,10 @@ const Collections = ({
     { id: 'c3', name: 'Modest', description: '' }
   ];
 
-  const availableCollections = Array.from(new Set(allProducts.map(p => p.collection || "Beyond The Sea")));
+  const availableCollections = collections.length > 0 
+    ? collections.map(c => c.name) 
+    : Array.from(new Set(allProducts.map(p => p.collection || "Beyond The Sea")));
+
   const collectionsToDisplay = selectedCollection === 'All' ? availableCollections : [selectedCollection];
 
   return (
@@ -1713,7 +1758,8 @@ const AdminDashboard = ({
   setIsSimpleAdminLoggedIn,
   products,
   orders,
-  journalEntries,
+  collections,
+  testimonials,
   categories,
   pageContents
 }: { 
@@ -1721,15 +1767,18 @@ const AdminDashboard = ({
   setIsSimpleAdminLoggedIn: (b: boolean) => void,
   products: Product[],
   orders: Order[],
-  journalEntries: JournalEntry[],
+  collections: Collection[],
+  testimonials: Testimonial[],
   categories: Category[],
   pageContents: PageContent[]
 }) => {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'journal' | 'categories' | 'pages'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'collections' | 'testimonials' | 'categories' | 'pages'>('products');
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isAddingJournal, setIsAddingJournal] = useState(false);
-  const [editingJournal, setEditingJournal] = useState<JournalEntry | null>(null);
+  const [isAddingCollection, setIsAddingCollection] = useState(false);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+  const [isAddingTestimonial, setIsAddingTestimonial] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isAddingPage, setIsAddingPage] = useState(false);
@@ -1754,12 +1803,18 @@ const AdminDashboard = ({
     isFeatured: false
   });
 
-  const [newJournal, setNewJournal] = useState<Partial<JournalEntry>>({
-    title: '',
-    date: '',
+  const [newCollection, setNewCollection] = useState<Partial<Collection>>({
+    name: '',
+    description: '',
     imageUrl: '',
-    excerpt: '',
-    content: ''
+    isFeatured: false
+  });
+
+  const [newTestimonial, setNewTestimonial] = useState<Partial<Testimonial>>({
+    customerName: '',
+    content: '',
+    location: '',
+    rating: 5
   });
 
   const [newCategory, setNewCategory] = useState<Partial<Category>>({
@@ -1816,26 +1871,49 @@ const AdminDashboard = ({
     }
   };
 
-  const handleAddJournal = async (e: React.FormEvent) => {
+  const handleAddCollection = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      if (editingJournal) {
-        const { id, ...journalData } = newJournal;
-        await updateDoc(doc(db, 'journal', editingJournal.id!), {
-          ...journalData
+      if (editingCollection) {
+        const { id, ...collectionData } = newCollection;
+        await updateDoc(doc(db, 'collections', editingCollection.id!), {
+          ...collectionData
         });
-        setEditingJournal(null);
+        setEditingCollection(null);
       } else {
-        const { id, ...journalData } = newJournal;
-        await addDoc(collection(db, 'journal'), {
-          ...journalData,
+        const { id, ...collectionData } = newCollection;
+        await addDoc(collection(db, 'collections'), {
+          ...collectionData,
           createdAt: new Date().toISOString()
         });
       }
-      setIsAddingJournal(false);
-      setNewJournal({ title: '', date: '', imageUrl: '', excerpt: '', content: '' });
+      setIsAddingCollection(false);
+      setNewCollection({ name: '', description: '', imageUrl: '', isFeatured: false });
     } catch (err) {
-      handleFirestoreError(err, editingJournal ? OperationType.UPDATE : OperationType.CREATE, 'journal');
+      handleFirestoreError(err, editingCollection ? OperationType.UPDATE : OperationType.CREATE, 'collections');
+    }
+  };
+
+  const handleAddTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingTestimonial) {
+        const { id, ...testimonialData } = newTestimonial;
+        await updateDoc(doc(db, 'testimonials', editingTestimonial.id!), {
+          ...testimonialData
+        });
+        setEditingTestimonial(null);
+      } else {
+        const { id, ...testimonialData } = newTestimonial;
+        await addDoc(collection(db, 'testimonials'), {
+          ...testimonialData,
+          createdAt: new Date().toISOString()
+        });
+      }
+      setIsAddingTestimonial(false);
+      setNewTestimonial({ customerName: '', content: '', location: '', rating: 5 });
+    } catch (err) {
+      handleFirestoreError(err, editingTestimonial ? OperationType.UPDATE : OperationType.CREATE, 'testimonials');
     }
   };
 
@@ -1894,11 +1972,19 @@ const AdminDashboard = ({
     }
   };
 
-  const handleDeleteJournal = async (id: string) => {
+  const handleDeleteCollection = async (id: string) => {
     try {
-      await deleteDoc(doc(db, 'journal', id));
+      await deleteDoc(doc(db, 'collections', id));
     } catch (err) {
-      handleFirestoreError(err, OperationType.DELETE, `journal/${id}`);
+      handleFirestoreError(err, OperationType.DELETE, `collections/${id}`);
+    }
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'testimonials', id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, `testimonials/${id}`);
     }
   };
 
@@ -1924,10 +2010,16 @@ const AdminDashboard = ({
     setIsAddingProduct(true);
   };
 
-  const handleEditJournal = (entry: JournalEntry) => {
-    setEditingJournal(entry);
-    setNewJournal(entry);
-    setIsAddingJournal(true);
+  const handleEditCollection = (collection: Collection) => {
+    setEditingCollection(collection);
+    setNewCollection(collection);
+    setIsAddingCollection(true);
+  };
+
+  const handleEditTestimonial = (testimonial: Testimonial) => {
+    setEditingTestimonial(testimonial);
+    setNewTestimonial(testimonial);
+    setIsAddingTestimonial(true);
   };
 
   const handleEditCategory = (category: Category) => {
@@ -1972,10 +2064,16 @@ const AdminDashboard = ({
               Orders
             </button>
             <button 
-              onClick={() => setActiveTab('journal')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'journal' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              onClick={() => setActiveTab('collections')}
+              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'collections' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
             >
-              Journal
+              Collections
+            </button>
+            <button 
+              onClick={() => setActiveTab('testimonials')}
+              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'testimonials' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+            >
+              Testimonials
             </button>
             <button 
               onClick={() => setActiveTab('categories')}
@@ -2136,47 +2234,87 @@ const AdminDashboard = ({
               </tbody>
             </table>
           </div>
-        ) : activeTab === 'journal' ? (
+        ) : activeTab === 'collections' ? (
           <div>
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-bold">Journal Management</h2>
+              <h2 className="text-xl font-bold">Collection Management</h2>
               <button 
                 onClick={() => {
-                  setEditingJournal(null);
-                  setNewJournal({ title: '', date: '', imageUrl: '', excerpt: '', content: '' });
-                  setIsAddingJournal(true);
+                  setEditingCollection(null);
+                  setNewCollection({ name: '', description: '', imageUrl: '', isFeatured: false });
+                  setIsAddingCollection(true);
                 }}
                 className="btn-luxury bg-kael-gold text-white border-none flex items-center"
               >
-                <Plus size={16} className="mr-2" /> New Entry
+                <Plus size={16} className="mr-2" /> New Collection
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {collections.map((coll) => (
+                <div key={coll.id} className="bg-white p-6 shadow-sm border border-kael-gold/5 flex justify-between items-center">
+                  <div>
+                    <h3 className="font-bold text-sm">{coll.name}</h3>
+                    <p className="text-xs text-kael-purple mt-1">{coll.description || 'No description'}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => handleEditCollection(coll)}
+                      className="text-kael-purple hover:text-kael-gold transition-colors"
+                    >
+                      <Settings size={18} />
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteCollection(coll.id!)}
+                      className="text-kael-purple hover:text-red-500 transition-colors"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : activeTab === 'testimonials' ? (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold">Testimonial Management</h2>
+              <button 
+                onClick={() => {
+                  setEditingTestimonial(null);
+                  setNewTestimonial({ customerName: '', content: '', location: '', rating: 5 });
+                  setIsAddingTestimonial(true);
+                }}
+                className="btn-luxury bg-kael-gold text-white border-none flex items-center"
+              >
+                <Plus size={16} className="mr-2" /> New Testimonial
               </button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {journalEntries.map((entry) => (
-                <div key={entry.id} className="bg-white p-6 shadow-sm border border-kael-gold/5 flex space-x-6">
-                  <div className="w-24 h-24 bg-kael-paper flex-shrink-0 overflow-hidden">
-                    <img src={entry.imageUrl} alt={entry.title} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-grow">
-                    <span className="text-[10px] uppercase text-kael-gold font-bold">{entry.date}</span>
-                    <h3 className="font-bold text-sm mt-1">{entry.title}</h3>
-                    <p className="text-xs text-kael-purple mt-2 line-clamp-2">{entry.excerpt}</p>
-                    <div className="flex space-x-4 mt-4">
+              {testimonials.map((test) => (
+                <div key={test.id} className="bg-white p-6 shadow-sm border border-kael-gold/5 flex flex-col">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="font-bold text-sm">{test.customerName}</h3>
+                      <p className="text-[10px] text-kael-purple uppercase tracking-widest">{test.location}</p>
+                    </div>
+                    <div className="flex space-x-2">
                       <button 
-                        onClick={() => handleEditJournal(entry)}
-                        className="text-[10px] uppercase tracking-widest font-bold hover:text-kael-gold"
+                        onClick={() => handleEditTestimonial(test)}
+                        className="text-kael-purple hover:text-kael-gold transition-colors"
                       >
-                        Edit
+                        <Settings size={18} />
                       </button>
                       <button 
-                        onClick={() => handleDeleteJournal(entry.id!)}
-                        className="text-[10px] uppercase tracking-widest font-bold text-red-500 hover:text-red-700"
+                        onClick={() => handleDeleteTestimonial(test.id!)}
+                        className="text-kael-purple hover:text-red-500 transition-colors"
                       >
-                        Delete
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </div>
+                  <p className="text-xs text-kael-purple italic">"{test.content}"</p>
                 </div>
               ))}
             </div>
@@ -2342,12 +2480,14 @@ const AdminDashboard = ({
                     <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Collection</label>
                     <select 
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold bg-white"
-                      value={newProduct.collection || 'Beyond The Sea'}
+                      value={newProduct.collection || ''}
                       onChange={(e) => setNewProduct({...newProduct, collection: e.target.value})}
                     >
-                      <option value="Beyond The Sea">Beyond The Sea</option>
-                      <option value="Future Collection I">Future Collection I</option>
-                      <option value="Future Collection II">Future Collection II</option>
+                      <option value="">Select Collection</option>
+                      {collections.map(coll => (
+                        <option key={coll.id} value={coll.name}>{coll.name}</option>
+                      ))}
+                      {collections.length === 0 && <option value="Beyond The Sea">Beyond The Sea</option>}
                     </select>
                   </div>
                 </div>
@@ -2492,79 +2632,132 @@ const AdminDashboard = ({
         )}
       </AnimatePresence>
 
-      {/* Add Journal Modal */}
+      {/* Collection Modal */}
       <AnimatePresence>
-        {isAddingJournal && (
+        {isAddingCollection && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-kael-ink/50 backdrop-blur-sm flex items-center justify-center p-6"
+            className="fixed inset-0 bg-kael-ink/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
           >
             <motion.div 
-              initial={{ scale: 0.95, y: 20 }}
+              initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto p-10 shadow-2xl"
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white max-w-md w-full p-10 shadow-2xl overflow-y-auto max-h-[90vh]"
             >
               <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold">{editingJournal ? 'Edit Journal Entry' : 'New Journal Entry'}</h2>
-                <button onClick={() => { setIsAddingJournal(false); setEditingJournal(null); }}><X size={24} /></button>
+                <h2 className="text-xl font-bold">{editingCollection ? 'Edit Collection' : 'Add New Collection'}</h2>
+                <button onClick={() => { setIsAddingCollection(false); setEditingCollection(null); setNewCollection({ name: '', description: '', imageUrl: '', isFeatured: false }); }}><X size={24} /></button>
               </div>
 
-              <form onSubmit={handleAddJournal} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Title</label>
-                    <input 
-                      type="text" required
-                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newJournal.title || ''}
-                      onChange={(e) => setNewJournal({...newJournal, title: e.target.value})}
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Display Date (e.g. March 2026)</label>
-                    <input 
-                      type="text" required
-                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                      value={newJournal.date || ''}
-                      onChange={(e) => setNewJournal({...newJournal, date: e.target.value})}
-                    />
-                  </div>
-                </div>
-
+              <form onSubmit={handleAddCollection} className="space-y-6">
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Image URL</label>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Collection Name</label>
                   <input 
-                    type="url" required
+                    type="text" required
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
-                    value={newJournal.imageUrl || ''}
-                    onChange={(e) => setNewJournal({...newJournal, imageUrl: e.target.value})}
+                    value={newCollection.name || ''}
+                    onChange={(e) => setNewCollection({...newCollection, name: e.target.value})}
                   />
                 </div>
-
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Excerpt (Short Preview)</label>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Description</label>
+                  <textarea 
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-24"
+                    value={newCollection.description || ''}
+                    onChange={(e) => setNewCollection({...newCollection, description: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Image URL (Optional)</label>
+                  <input 
+                    type="url"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newCollection.imageUrl || ''}
+                    onChange={(e) => setNewCollection({...newCollection, imageUrl: e.target.value})}
+                  />
+                </div>
+                <div className="flex items-center">
+                  <label className="flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="mr-2"
+                      checked={newCollection.isFeatured || false}
+                      onChange={(e) => setNewCollection({...newCollection, isFeatured: e.target.checked})}
+                    />
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Featured Collection</span>
+                  </label>
+                </div>
+                <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
+                  {editingCollection ? 'Update Collection' : 'Create Collection'}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Testimonial Modal */}
+      <AnimatePresence>
+        {isAddingTestimonial && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-kael-ink/80 backdrop-blur-sm z-[100] flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white max-w-md w-full p-10 shadow-2xl overflow-y-auto max-h-[90vh]"
+            >
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold">{editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}</h2>
+                <button onClick={() => { setIsAddingTestimonial(false); setEditingTestimonial(null); setNewTestimonial({ customerName: '', content: '', location: '', rating: 5 }); }}><X size={24} /></button>
+              </div>
+
+              <form onSubmit={handleAddTestimonial} className="space-y-6">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Customer Name</label>
+                  <input 
+                    type="text" required
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newTestimonial.customerName || ''}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, customerName: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Avatar URL (Optional)</label>
+                  <input 
+                    type="url"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newTestimonial.avatarUrl || ''}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, avatarUrl: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Location (e.g. Dubai, UAE)</label>
+                  <input 
+                    type="text"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newTestimonial.location || ''}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, location: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Testimonial Content</label>
                   <textarea 
                     required
-                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-24"
-                    value={newJournal.excerpt || ''}
-                    onChange={(e) => setNewJournal({...newJournal, excerpt: e.target.value})}
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-32"
+                    value={newTestimonial.content || ''}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, content: e.target.value})}
                   />
                 </div>
-
-                <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Full Content (Markdown supported)</label>
-                  <textarea 
-                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold h-48"
-                    value={newJournal.content || ''}
-                    onChange={(e) => setNewJournal({...newJournal, content: e.target.value})}
-                  />
-                </div>
-
                 <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
-                  {editingJournal ? 'Update Journal' : 'Publish to Journal'}
+                  {editingTestimonial ? 'Update Testimonial' : 'Create Testimonial'}
                 </button>
               </form>
             </motion.div>
@@ -2748,77 +2941,20 @@ const AdminDashboard = ({
   );
 };
 
-const Journal = ({ setPage, journalEntries, trackView, pageContents }: { setPage: (p: Page) => void, journalEntries: JournalEntry[], trackView: (type: 'product' | 'journal', id: string) => void, pageContents: PageContent[] }) => {
-  const content = pageContents.find(p => p.pageId === 'journal');
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      exit={{ opacity: 0 }}
-      className="pt-48 pb-32 px-6 md:px-12 bg-kael-paper min-h-screen"
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-24">
-          <span className="micro-label">{content?.subtitle || 'Editorial'}</span>
-          <h1 className="serif-display">{content?.title || 'The KAEL Journal'}</h1>
-          <p className="mt-6 text-kael-purple max-w-xl mx-auto italic">
-            {content?.content || 'Exploring the intersection of heritage, craftsmanship, and modern luxury.'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16">
-          {journalEntries.length > 0 ? journalEntries.map((entry) => (
-            <div 
-              key={entry.id} 
-              className="group cursor-pointer"
-              onClick={() => {
-                trackView('journal', entry.id!);
-                setPage('journal');
-              }}
-            >
-              <div className="aspect-[16/10] overflow-hidden mb-8 shadow-lg">
-                <img 
-                  src={entry.imageUrl} 
-                  alt={entry.title} 
-                  className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" 
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-kael-gold font-bold">{entry.date}</span>
-              <h2 className="text-2xl font-bold mt-4 mb-4 group-hover:text-kael-gold transition-colors">{entry.title}</h2>
-              <p className="text-sm text-kael-purple leading-relaxed mb-6 line-clamp-3 italic">
-                {entry.excerpt}
-              </p>
-              <div className="w-12 h-[1px] bg-kael-gold group-hover:w-24 transition-all duration-500" />
-            </div>
-          )) : (
-            <div className="col-span-full text-center py-32 text-kael-purple italic">
-              Our journal is currently being written by our curators.
-            </div>
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
 const PersonalizedFeed = ({ 
   userActivity, 
   products, 
-  journalEntries, 
   setPage, 
   setSelectedProduct,
   trackView
 }: { 
   userActivity: UserActivity | null, 
   products: Product[], 
-  journalEntries: JournalEntry[],
   setPage: (p: Page) => void,
   setSelectedProduct: (p: Product) => void,
-  trackView: (type: 'product' | 'journal', id: string, category?: string) => void
+  trackView: (type: 'product' | 'collection', id: string, category?: string) => void
 }) => {
-  if (!userActivity || (userActivity.viewedProductIds.length === 0 && userActivity.viewedJournalIds.length === 0)) {
+  if (!userActivity || userActivity.viewedProductIds.length === 0) {
     return null;
   }
 
@@ -2828,11 +2964,7 @@ const PersonalizedFeed = ({
     .filter(p => userActivity.preferredCategories.includes(p.category)) // Match their preferred categories
     .slice(0, 3);
 
-  const recommendedJournal = journalEntries
-    .filter(j => !userActivity.viewedJournalIds.includes(j.id!))
-    .slice(0, 3);
-
-  if (recommendedProducts.length === 0 && recommendedJournal.length === 0) return null;
+  if (recommendedProducts.length === 0) return null;
 
   return (
     <section className="py-24 bg-white">
@@ -2860,29 +2992,6 @@ const PersonalizedFeed = ({
             </div>
           </div>
         )}
-
-        {recommendedJournal.length > 0 && (
-          <div>
-            <h3 className="text-sm uppercase tracking-widest font-bold mb-8 text-kael-gold">From the Journal</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-              {recommendedJournal.map(entry => (
-                <div 
-                  key={entry.id} 
-                  className="group cursor-pointer"
-                  onClick={() => {
-                    trackView('journal', entry.id!);
-                    setPage('journal');
-                  }}
-                >
-                  <div className="aspect-video overflow-hidden mb-6 shadow-sm group-hover:shadow-md transition-shadow">
-                    <img src={entry.imageUrl} alt={entry.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  </div>
-                  <h4 className="text-lg font-bold group-hover:text-kael-gold transition-colors">{entry.title}</h4>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
@@ -2901,7 +3010,8 @@ export default function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [pageContents, setPageContents] = useState<PageContent[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
 
@@ -2914,15 +3024,19 @@ export default function App() {
       setCategories(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Category)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'categories'));
 
-    const unsubJournal = onSnapshot(collection(db, 'journal'), (snapshot) => {
-      setJournalEntries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as JournalEntry)));
-    }, (error) => handleFirestoreError(error, OperationType.GET, 'journal'));
+    const unsubCollections = onSnapshot(collection(db, 'collections'), (snapshot) => {
+      setCollections(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Collection)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'collections'));
+
+    const unsubTestimonials = onSnapshot(collection(db, 'testimonials'), (snapshot) => {
+      setTestimonials(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Testimonial)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'testimonials'));
 
     const unsubPageContent = onSnapshot(collection(db, 'page_content'), (snapshot) => {
       setPageContents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageContent)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'page_content'));
 
-    return () => { unsubProducts(); unsubCategories(); unsubJournal(); unsubPageContent(); };
+    return () => { unsubProducts(); unsubCategories(); unsubCollections(); unsubTestimonials(); unsubPageContent(); };
   }, []);
 
   useEffect(() => {
@@ -2971,11 +3085,10 @@ export default function App() {
   }, [user]);
 
   // Track view
-  const trackView = async (type: 'product' | 'journal', id: string, category?: string) => {
+  const trackView = async (type: 'product' | 'collection', id: string, category?: string) => {
     const currentActivity: UserActivity = userActivity || {
       uid: user?.uid || 'guest',
       viewedProductIds: [],
-      viewedJournalIds: [],
       preferredCategories: [],
       updatedAt: new Date().toISOString()
     };
@@ -2987,10 +3100,6 @@ export default function App() {
       }
       if (category && !updatedActivity.preferredCategories.includes(category)) {
         updatedActivity.preferredCategories = [category, ...updatedActivity.preferredCategories].slice(0, 5);
-      }
-    } else {
-      if (!updatedActivity.viewedJournalIds.includes(id)) {
-        updatedActivity.viewedJournalIds = [id, ...updatedActivity.viewedJournalIds].slice(0, 20);
       }
     }
     updatedActivity.updatedAt = new Date().toISOString();
@@ -3057,16 +3166,15 @@ export default function App() {
   // Simple routing
   const renderPage = () => {
     switch (page) {
-      case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} journalEntries={journalEntries} userActivity={userActivity} trackView={trackView} />;
+      case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} userActivity={userActivity} trackView={trackView} />;
       case 'about': return <About pageContents={pageContents} />;
       case 'craft': return <Craft pageContents={pageContents} />;
       case 'contact': return <Contact pageContents={pageContents} />;
-      case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} journalEntries={journalEntries} userActivity={userActivity} trackView={trackView} />;
+      case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} userActivity={userActivity} trackView={trackView} />;
       case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} />;
-      case 'journal': return <Journal setPage={setPage} journalEntries={journalEntries} trackView={trackView} pageContents={pageContents} />;
       case 'login': return <LoginPage onLogin={() => setPage(effectiveIsAdmin ? 'admin' : 'home')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} journalEntries={journalEntries} categories={categories} pageContents={pageContents} /> : <LoginPage onLogin={() => setPage('admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'collections': return <Collections products={products} categories={categories} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} />;
+      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} /> : <LoginPage onLogin={() => setPage('admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
+      case 'collections': return <Collections products={products} categories={categories} collections={collections} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} />;
       default: return (
         <div className="pt-48 pb-32 px-6 text-center">
           <span className="micro-label">{page}</span>

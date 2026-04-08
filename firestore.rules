@@ -6,7 +6,7 @@ service cloud.firestore {
     // ===============================================================
     //
     // Collection: products
-    // Fields: name, description, price, imageUrls, category, craftStory, materialDetails, careInstructions, createdAt
+    // Fields: name, description, price, imageUrls, category, collection, craftStory, materialDetails, careInstructions, isFeatured, createdAt, sku, tagline, fitType, packageContent, sizes
     //
     // Collection: orders
     // Fields: customerName, customerEmail, items, totalAmount, status, createdAt, uid
@@ -14,8 +14,11 @@ service cloud.firestore {
     // Collection: users
     // Fields: email, role
     //
-    // Collection: journal
-    // Fields: title, date, imageUrl, excerpt, content, createdAt
+    // Collection: collections
+    // Fields: name, description, imageUrl, isFeatured, createdAt
+    //
+    // Collection: testimonials
+    // Fields: customerName, content, location, rating, createdAt
     //
     // Collection: categories
     // Fields: name, description, createdAt
@@ -49,10 +52,9 @@ service cloud.firestore {
 
     // Domain Validators
     function isValidUserActivity(data) {
-      return hasOnlyAllowedFields(['uid', 'viewedProductIds', 'viewedJournalIds', 'preferredCategories', 'updatedAt']) &&
+      return hasOnlyAllowedFields(['uid', 'viewedProductIds', 'preferredCategories', 'updatedAt']) &&
              data.uid is string &&
              data.viewedProductIds is list &&
-             data.viewedJournalIds is list &&
              data.preferredCategories is list &&
              data.updatedAt is string;
     }
@@ -97,8 +99,14 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // Journal: Publicly readable, Admin can write
-    match /journal/{articleId} {
+    // Collections: Publicly readable, Admin can write
+    match /collections/{collectionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Testimonials: Publicly readable, Admin can write
+    match /testimonials/{testimonialId} {
       allow read: if true;
       allow write: if isAdmin();
     }

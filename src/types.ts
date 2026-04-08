@@ -50,27 +50,35 @@ export interface UserProfile {
   role: 'admin' | 'user';
 }
 
-export interface JournalEntry {
+export interface Collection {
   id?: string;
-  title: string;
-  date: string;
-  imageUrl: string;
-  excerpt: string;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  isFeatured?: boolean;
+  createdAt?: string;
+}
+
+export interface Testimonial {
+  id?: string;
+  customerName: string;
   content: string;
+  location?: string;
+  avatarUrl?: string;
+  rating?: number;
   createdAt: string;
 }
 
 export interface UserActivity {
   uid: string;
   viewedProductIds: string[];
-  viewedJournalIds: string[];
   preferredCategories: string[];
   updatedAt: string;
 }
 
 export interface PageContent {
   id?: string;
-  pageId: string; // 'about', 'craft', 'contact', 'journal', 'collections'
+  pageId: string; // 'about', 'craft', 'contact', 'collections'
   title: string;
   subtitle?: string;
   heroImageUrl?: string;
@@ -84,4 +92,4 @@ export interface PageContent {
   updatedAt: string;
 }
 
-export type Page = 'home' | 'collections' | 'craft' | 'about' | 'journal' | 'contact' | 'cart' | 'product' | 'admin' | 'login';
+export type Page = 'home' | 'collections' | 'craft' | 'about' | 'contact' | 'cart' | 'product' | 'admin' | 'login';
