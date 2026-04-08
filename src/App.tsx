@@ -16,6 +16,8 @@ import {
   Package,
   Settings,
   MessageCircle,
+  Pin,
+  Link as LinkIcon,
   Home as HomeIcon,
   User as UserIcon
 } from 'lucide-react';
@@ -525,9 +527,9 @@ const Home = ({
 
       {/* Collection Spotlight */}
       <section className="py-32 px-6 md:px-24 bg-kael-ink text-white overflow-hidden relative">
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 opacity-40 pointer-events-none">
           <img 
-            src="https://images.unsplash.com/photo-1505118380757-91f5f45d8de6?auto=format&fit=crop&q=80&w=2000" 
+            src="https://i.ibb.co/dsJmWZnV/image-5.jpg" 
             alt="Sea background" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
@@ -561,7 +563,7 @@ const Home = ({
               className="relative aspect-[4/5] bg-white/5 backdrop-blur-sm p-4 border border-white/10"
             >
               <img 
-                src="https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?auto=format&fit=crop&q=80&w=1000" 
+                src="https://i.ibb.co/MyKm64M6/image-beyond-the-sea.jpg" 
                 alt="Beyond the Sea Collection" 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
@@ -700,127 +702,207 @@ const Home = ({
 const About = ({ pageContents }: { pageContents: PageContent[] }) => {
   const content = pageContents.find(p => p.pageId === 'about');
 
-  if (!content) {
-    return (
-      <div className="pt-48 pb-32 px-6 text-center">
-        <h1 className="serif-display mb-8">About KAEL</h1>
-        <p className="text-kael-purple max-w-xl mx-auto">This section is currently being curated.</p>
-      </div>
-    );
-  }
+  const defaultContent: PageContent = {
+    pageId: 'about',
+    title: 'About KAEL',
+    subtitle: 'A Vision by Anusree',
+    heroImageUrl: 'https://i.ibb.co/RGKTFDyt/image-a.jpg',
+    content: 'KAEL was born from a quiet desire — to create clothing that feels meaningful in a world of excess.',
+    updatedAt: new Date().toISOString(),
+    sections: [
+      {
+        title: 'Our Path',
+        content: 'In a time where fashion often moves too fast and feels increasingly uniform, KAEL chooses a different path. One that values time, intention, and the beauty of things made by hand.',
+        imageUrl: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1000',
+        imagePosition: 'right'
+      },
+      {
+        title: 'The Heart of Handloom',
+        content: 'At the heart of KAEL lies handloom — fabrics woven with patience, carrying a natural texture and depth that no machine can replicate. These textiles become the foundation of each piece, brought to life through delicate hand embroidery, added slowly and thoughtfully, never to overwhelm, but to enhance.',
+        imageUrl: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1000',
+        imagePosition: 'left'
+      },
+      {
+        title: 'Integrity in Process',
+        content: 'Every garment is created in limited numbers, not just for exclusivity, but to preserve the integrity of the process. Behind each piece are skilled hands, quiet dedication, and stories woven into every thread.',
+        imageUrl: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1000',
+        imagePosition: 'right'
+      },
+      {
+        title: 'Modern Craftsmanship',
+        content: 'KAEL is deeply rooted in craftsmanship, yet shaped for the present. It reimagines traditional techniques through a modern lens — creating silhouettes that are refined, effortless, and timeless.',
+        imageUrl: 'https://images.unsplash.com/photo-1528476513691-07e6f563d97f?auto=format&fit=crop&q=80&w=1000',
+        imagePosition: 'left'
+      },
+      {
+        title: 'The Feeling',
+        content: 'More than clothing, KAEL is a feeling. A sense of calm in what you wear. A confidence that doesn’t need to be loud. A connection to something real, in a world that often feels fleeting. For those who seek meaning in what they choose to wear, KAEL becomes more than a garment — it becomes a part of their story.',
+        imageUrl: '',
+        imagePosition: 'left'
+      }
+    ]
+  };
+
+  const activeContent = content || defaultContent;
 
   return (
     <motion.div 
       initial={{ opacity: 0 }} 
       animate={{ opacity: 1 }} 
       exit={{ opacity: 0 }}
-      className="bg-kael-paper"
+      className="bg-kael-paper min-h-screen"
     >
-      {/* Hero Section */}
-      <section className="relative h-[70vh] w-full overflow-hidden flex items-center justify-center">
-        <img 
-          src={content.heroImageUrl || "https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000"} 
-          alt={content.title} 
-          className="w-full h-full object-cover brightness-75"
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white px-6">
+      {/* 1. Immersive Hero Section */}
+      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+        <motion.div 
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 3, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
+          <img 
+            src={activeContent.heroImageUrl || "https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000"} 
+            alt={activeContent.title} 
+            className="w-full h-full object-cover brightness-[0.5]"
+            referrerPolicy="no-referrer"
+          />
+        </motion.div>
+        <div className="relative z-10 flex flex-col items-center justify-center text-white px-6 text-center">
           <motion.span 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="micro-label text-white/80"
+            transition={{ delay: 0.5, duration: 1 }}
+            className="text-[10px] uppercase tracking-[0.6em] font-bold text-kael-gold mb-8"
           >
-            {content.subtitle || 'Our Story'}
+            {activeContent.subtitle}
           </motion.span>
           <motion.h1 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="text-5xl md:text-7xl font-bold tracking-tight"
+            transition={{ delay: 0.8, duration: 1 }}
+            className="text-6xl md:text-9xl font-bold tracking-tighter serif-display leading-none"
           >
-            {content.title}
+            Meaningful<br/>Elegance
           </motion.h1>
+          <motion.div
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 1.2, duration: 1.5 }}
+            className="w-32 h-px bg-kael-gold mt-12 origin-center"
+          />
         </div>
       </section>
 
-      {/* Dynamic Sections */}
-      {(content.sections || []).map((section, idx) => {
-        // Section 1 & 3: Grid layouts (idx 0 and 2)
-        if (idx === 0 || idx === 2) {
-          return (
-            <section key={idx} className="py-32 px-6 md:px-24 bg-white">
-              <div className="max-w-5xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                  <div className={section.imagePosition === 'left' ? 'order-2' : 'order-1'}>
-                    <span className="micro-label">{section.title}</span>
-                    <div className="prose prose-kael mt-8">
-                      <ReactMarkdown>{section.content}</ReactMarkdown>
-                    </div>
-                  </div>
-                  <div className={cn("aspect-[4/5] overflow-hidden", section.imagePosition === 'left' ? 'order-1' : 'order-2')}>
-                    {section.imageUrl && (
-                      <img 
-                        src={section.imageUrl} 
-                        alt={section.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-            </section>
-          );
-        }
+      {/* 2. Opening Statement */}
+      <section className="py-48 px-6 md:px-24 bg-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="serif-display text-3xl md:text-5xl leading-tight text-kael-ink italic font-light"
+          >
+            "{activeContent.content}"
+          </motion.h2>
+          <div className="w-px h-32 bg-kael-gold/20 mx-auto mt-20" />
+        </div>
+      </section>
 
-        // Section 2: Full width text (idx 1)
-        if (idx === 1) {
-          return (
-            <section key={idx} className="py-32 px-6 md:px-24 bg-kael-paper">
-              <div className="max-w-3xl mx-auto text-center">
-                <div className="prose prose-kael max-w-none text-xl md:text-2xl text-kael-ink leading-relaxed font-light">
+      {/* 3. Editorial Staggered Sections */}
+      <section className="pb-48 px-6 md:px-24 bg-white">
+        <div className="max-w-7xl mx-auto space-y-64">
+          {(activeContent.sections || []).filter(s => s.title !== 'The Feeling').map((section, idx) => (
+            <div key={idx} className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+              {/* Image Column */}
+              <motion.div 
+                initial={{ opacity: 0, x: idx % 2 === 0 ? -50 : 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-100px" }}
+                transition={{ duration: 1.2 }}
+                className={cn(
+                  "lg:col-span-7 aspect-[16/11] overflow-hidden shadow-2xl relative group",
+                  idx % 2 === 0 ? "lg:order-1" : "lg:order-2 lg:col-start-6"
+                )}
+              >
+                {section.imageUrl && (
+                  <img 
+                    src={section.imageUrl} 
+                    alt={section.title} 
+                    className="w-full h-full object-cover transition-transform duration-[2s] group-hover:scale-105"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <div className="absolute inset-0 bg-kael-ink/5 group-hover:bg-transparent transition-colors duration-700" />
+              </motion.div>
+
+              {/* Text Column */}
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 1 }}
+                className={cn(
+                  "lg:col-span-4 flex flex-col",
+                  idx % 2 === 0 ? "lg:order-2 lg:col-start-9" : "lg:order-1 lg:col-start-1"
+                )}
+              >
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-kael-gold mb-6">
+                  {String(idx + 1).padStart(2, '0')} / {section.title}
+                </span>
+                <h3 className="serif-display text-4xl mb-8 leading-tight">{section.title}</h3>
+                <div className="prose prose-kael text-lg leading-relaxed text-kael-purple italic font-light">
                   <ReactMarkdown>{section.content}</ReactMarkdown>
                 </div>
-                <div className="w-24 h-[1px] bg-kael-gold mx-auto mt-12" />
-              </div>
-            </section>
-          );
-        }
-
-        // Section 4: Quote (idx 3)
-        if (idx === 3) {
-          return (
-            <section key={idx} className="py-40 px-6 md:px-24 bg-kael-ink text-white text-center">
-              <div className="max-w-3xl mx-auto">
-                <h2 className="text-4xl md:text-5xl font-bold mb-12 tracking-tighter leading-tight">
-                  "{section.content}"
-                </h2>
-                <span className="micro-label text-white/60">{section.title}</span>
-              </div>
-            </section>
-          );
-        }
-
-        // Fallback for extra sections
-        return (
-          <section key={idx} className="py-20 px-6 md:px-24 bg-white">
-            <div className="max-w-4xl mx-auto prose prose-kael">
-              <h2 className="serif-display mb-8">{section.title}</h2>
-              <ReactMarkdown>{section.content}</ReactMarkdown>
+              </motion.div>
             </div>
-          </section>
-        );
-      })}
+          ))}
+        </div>
+      </section>
 
-      {/* If no sections, show the main content field */}
-      {(!content.sections || content.sections.length === 0) && content.content && (
-        <section className="py-32 px-6 md:px-24 bg-white">
-          <div className="max-w-4xl mx-auto">
-            <div className="prose prose-kael max-w-none">
-              <ReactMarkdown>{content.content}</ReactMarkdown>
-            </div>
+      {/* 4. Immersive Full-bleed Section */}
+      {activeContent.sections?.find(s => s.title === 'The Feeling') && (
+        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-kael-ink py-32">
+          <div className="absolute inset-0">
+            <img 
+              src="https://images.unsplash.com/photo-1505118380757-91f5f45d8de6?auto=format&fit=crop&q=80&w=2000" 
+              alt="Atmospheric background" 
+              className="w-full h-full object-cover opacity-20 scale-110 blur-[2px]"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+          <div className="relative z-10 max-w-4xl mx-auto text-center text-white px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5 }}
+            >
+              <span className="text-[10px] uppercase tracking-[1em] font-bold text-kael-gold mb-16 block opacity-60">The Essence</span>
+              <h2 className="serif-display text-xl md:text-3xl lg:text-4xl leading-[1.8] mb-16 italic font-light tracking-wide">
+                {activeContent.sections.find(s => s.title === 'The Feeling')?.content}
+              </h2>
+              <div className="w-12 h-px bg-kael-gold mx-auto opacity-40" />
+            </motion.div>
           </div>
         </section>
       )}
+
+      {/* 5. Visionary Signature Section */}
+      <section className="py-60 bg-kael-paper text-center relative overflow-hidden">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-40 bg-kael-gold/20" />
+        <div className="max-w-2xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 2 }}
+          >
+            <span className="text-[10px] uppercase tracking-[0.5em] text-kael-gold font-bold mb-6 block">A Vision By</span>
+            <h2 className="serif-display text-6xl md:text-8xl text-kael-ink tracking-tighter">Anusree</h2>
+            <p className="mt-12 text-xs uppercase tracking-[0.3em] text-kael-purple font-medium">Founder & Creative Director</p>
+          </motion.div>
+        </div>
+      </section>
     </motion.div>
   );
 };
@@ -830,21 +912,21 @@ const Craft = ({ pageContents }: { pageContents: PageContent[] }) => {
 
   const defaultSections = [
     {
-      title: "The Master Weavers",
-      content: "Our craft begins with the hands of master weavers, whose lineage of textile artistry spans generations. Each movement is a rhythmic dance of precision and patience.",
-      imageUrl: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1000",
+      title: "Limited by Nature",
+      content: "Our craft begins with the hands of master weavers, whose lineage of textile artistry spans generations. Each movement is a rhythmic dance of precision and patience, guided by the natural constraints of the handloom.",
+      imageUrl: "https://i.ibb.co/spg9g3vJ/image-limited-by-nature.jpg",
       imagePosition: 'left' as const
     },
     {
-      title: "The Handloom Machines",
-      content: "We use traditional wooden handlooms, mechanical marvels that require no electricity, only the skilled coordination of the weaver's hands and feet.",
-      imageUrl: "https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1000",
+      title: "The Weaver's Desire",
+      content: "We use traditional wooden handlooms, mechanical marvels that require no electricity, only the skilled coordination of the weaver's hands and feet to bring a vision of desire to life.",
+      imageUrl: "https://i.ibb.co/hxQFBbzv/image-desire.jpg",
       imagePosition: 'right' as const
     },
     {
-      title: "The Finest Threads",
-      content: "Our threads are sourced from sustainable silk and organic cotton, dyed with natural pigments to create a palette that reflects the vibrant soul of the sea.",
-      imageUrl: "https://images.unsplash.com/photo-1528476513691-07e6f563d97f?auto=format&fit=crop&q=80&w=1000",
+      title: "Artisanal Mastery",
+      content: "Our threads are sourced from sustainable silk and organic cotton, dyed with natural pigments to create a palette that reflects the vibrant soul of the sea and the mastery of the artisan.",
+      imageUrl: "https://i.ibb.co/fdQ4TWry/image-b.jpg",
       imagePosition: 'left' as const
     }
   ];
@@ -1072,6 +1154,57 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
             >
               <MessageCircle size={16} className="mr-2" /> Purchase via WhatsApp
             </button>
+
+            <div className="pt-8 border-t border-kael-gold/10">
+              <h4 className="text-[10px] uppercase tracking-widest font-bold mb-4 text-kael-purple text-center">Share this Creation</h4>
+              <div className="flex justify-center space-x-8">
+                <button 
+                  onClick={() => {
+                    const url = encodeURIComponent(window.location.href);
+                    const text = encodeURIComponent(`Discover ${product.name} at KAEL Atelier`);
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
+                  }}
+                  className="text-kael-ink hover:text-kael-gold transition-colors"
+                  title="Share on Facebook"
+                >
+                  <Facebook size={18} />
+                </button>
+                <button 
+                  onClick={() => {
+                    const url = encodeURIComponent(window.location.href);
+                    const text = encodeURIComponent(`Discover ${product.name} at KAEL Atelier`);
+                    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
+                  }}
+                  className="text-kael-ink hover:text-kael-gold transition-colors"
+                  title="Share on Twitter"
+                >
+                  <Twitter size={18} />
+                </button>
+                <button 
+                  onClick={() => {
+                    const url = encodeURIComponent(window.location.href);
+                    const media = encodeURIComponent(product.imageUrls[0]);
+                    const description = encodeURIComponent(`Discover ${product.name} at KAEL Atelier`);
+                    window.open(`https://www.pinterest.com/pin/create/button/?url=${url}&media=${media}&description=${description}`, '_blank');
+                  }}
+                  className="text-kael-ink hover:text-kael-gold transition-colors"
+                  title="Share on Pinterest"
+                >
+                  <Pin size={18} />
+                </button>
+                <button 
+                  onClick={() => {
+                    const url = window.location.href;
+                    navigator.clipboard.writeText(url);
+                    // We could add a toast here, but for now simple feedback
+                  }}
+                  className="text-kael-ink hover:text-kael-gold transition-colors"
+                  title="Copy Link"
+                >
+                  <LinkIcon size={18} />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1324,6 +1457,9 @@ const Collections = ({
   searchQuery: string,
   pageContents: PageContent[]
 }) => {
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCollection, setSelectedCollection] = useState<string>('All');
+
   const content = pageContents.find(p => p.pageId === 'collections');
   const hasData = products.length > 0;
   
@@ -1388,14 +1524,20 @@ const Collections = ({
     }
   ];
 
-  const displayProducts = (hasData ? products : samples).filter(p => {
+  const allProducts = hasData ? products : samples;
+
+  const displayProducts = allProducts.filter(p => {
     const query = searchQuery.toLowerCase();
-    return (
+    const matchesSearch = (
       p.name.toLowerCase().includes(query) ||
       p.category.toLowerCase().includes(query) ||
       p.description.toLowerCase().includes(query) ||
       (p.collection || '').toLowerCase().includes(query)
     );
+    const matchesCategory = selectedCategory === 'All' || p.category === selectedCategory;
+    const matchesCollection = selectedCollection === 'All' || p.collection === selectedCollection;
+    
+    return matchesSearch && matchesCategory && matchesCollection;
   });
 
   const displayCategories = categories.length > 0 ? categories : [
@@ -1404,7 +1546,8 @@ const Collections = ({
     { id: 'c3', name: 'Modest', description: '' }
   ];
 
-  const collections = ["Beyond The Sea", "Future Collection I", "Future Collection II"];
+  const availableCollections = Array.from(new Set(allProducts.map(p => p.collection || "Beyond The Sea")));
+  const collectionsToDisplay = selectedCollection === 'All' ? availableCollections : [selectedCollection];
 
   return (
     <motion.div 
@@ -1425,10 +1568,85 @@ const Collections = ({
           </p>
         </div>
 
+        {/* Filters */}
+        <div className="mb-16 flex flex-col md:flex-row items-center justify-center gap-8 border-y border-kael-gold/10 py-8">
+          <div className="flex flex-col items-center md:items-start">
+            <span className="text-[10px] uppercase tracking-widest font-bold mb-3 text-kael-gold">Filter by Category</span>
+            <div className="flex flex-wrap justify-center gap-4">
+              <button 
+                onClick={() => setSelectedCategory('All')}
+                className={cn(
+                  "px-4 py-1 text-[10px] uppercase tracking-widest transition-all border",
+                  selectedCategory === 'All' ? "bg-kael-ink text-white border-kael-ink" : "bg-white text-kael-purple border-kael-gold/20 hover:border-kael-gold"
+                )}
+              >
+                All
+              </button>
+              {displayCategories.map(cat => (
+                <button 
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={cn(
+                    "px-4 py-1 text-[10px] uppercase tracking-widest transition-all border",
+                    selectedCategory === cat.name ? "bg-kael-ink text-white border-kael-ink" : "bg-white text-kael-purple border-kael-gold/20 hover:border-kael-gold"
+                  )}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="w-px h-12 bg-kael-gold/10 hidden md:block"></div>
+
+          <div className="flex flex-col items-center md:items-start">
+            <span className="text-[10px] uppercase tracking-widest font-bold mb-3 text-kael-gold">Filter by Collection</span>
+            <div className="flex flex-wrap justify-center gap-4">
+              <button 
+                onClick={() => setSelectedCollection('All')}
+                className={cn(
+                  "px-4 py-1 text-[10px] uppercase tracking-widest transition-all border",
+                  selectedCollection === 'All' ? "bg-kael-ink text-white border-kael-ink" : "bg-white text-kael-purple border-kael-gold/20 hover:border-kael-gold"
+                )}
+              >
+                All
+              </button>
+              {availableCollections.map(coll => (
+                <button 
+                  key={coll}
+                  onClick={() => setSelectedCollection(coll)}
+                  className={cn(
+                    "px-4 py-1 text-[10px] uppercase tracking-widest transition-all border",
+                    selectedCollection === coll ? "bg-kael-ink text-white border-kael-ink" : "bg-white text-kael-purple border-kael-gold/20 hover:border-kael-gold"
+                  )}
+                >
+                  {coll}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-32">
-          {collections.map((collectionName, collectionIdx) => {
+          {collectionsToDisplay.map((collectionName) => {
             const collectionProducts = displayProducts.filter(p => p.collection === collectionName || (!p.collection && collectionName === "Beyond The Sea"));
-            const isFuture = collectionProducts.length === 0 && collectionIdx > 0;
+            
+            if (collectionProducts.length === 0 && selectedCategory === 'All' && selectedCollection === 'All') {
+              return (
+                <div key={collectionName} className="relative">
+                  <div className="mb-12 text-center">
+                    <h2 className="text-4xl md:text-5xl font-bold serif-display tracking-tight text-kael-ink">{collectionName}</h2>
+                    <div className="w-24 h-px bg-kael-gold mx-auto mt-4"></div>
+                  </div>
+                  <div className="py-20 border border-dashed border-kael-gold/30 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm">
+                    <span className="micro-label mb-4">Coming Soon</span>
+                    <p className="text-kael-purple italic">A new artisanal journey is being curated.</p>
+                  </div>
+                </div>
+              );
+            }
+
+            if (collectionProducts.length === 0) return null;
 
             return (
               <div key={collectionName} className="relative">
@@ -1437,48 +1655,53 @@ const Collections = ({
                   <div className="w-24 h-px bg-kael-gold mx-auto mt-4"></div>
                 </div>
 
-                {isFuture ? (
-                  <div className="py-20 border border-dashed border-kael-gold/30 flex flex-col items-center justify-center bg-white/50 backdrop-blur-sm">
-                    <span className="micro-label mb-4">Coming Soon</span>
-                    <p className="text-kael-purple italic">A new artisanal journey is being curated.</p>
-                  </div>
-                ) : (
-                  <div className="space-y-20">
-                    {displayCategories.map(category => {
-                      const categoryProducts = collectionProducts.filter(p => p.category === category.name);
-                      if (categoryProducts.length === 0) return null;
+                <div className="space-y-20">
+                  {displayCategories.map(category => {
+                    const categoryProducts = collectionProducts.filter(p => p.category === category.name);
+                    if (categoryProducts.length === 0) return null;
 
-                      return (
-                        <div key={category.id}>
-                          <div className="flex items-baseline gap-4 mb-8 border-b border-kael-ink/10 pb-4">
-                            <h3 className="text-2xl font-bold">{category.name}</h3>
-                            <span className="text-xs uppercase tracking-widest text-kael-purple">
-                              {categoryProducts.length} {hasData ? 'Pieces' : 'Sample Pieces'}
-                            </span>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
-                            {categoryProducts.map(product => (
-                              <ProductCard 
-                                key={product.id} 
-                                product={product} 
-                                hasData={hasData}
-                                onClick={() => {
-                                  if (hasData) {
-                                    setSelectedProduct(product);
-                                    setPage('product');
-                                  }
-                                }}
-                              />
-                            ))}
-                          </div>
+                    return (
+                      <div key={category.id}>
+                        <div className="flex items-baseline gap-4 mb-8 border-b border-kael-ink/10 pb-4">
+                          <h3 className="text-2xl font-bold">{category.name}</h3>
+                          <span className="text-xs uppercase tracking-widest text-kael-purple">
+                            {categoryProducts.length} {hasData ? 'Pieces' : 'Sample Pieces'}
+                          </span>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                          {categoryProducts.map(product => (
+                            <ProductCard 
+                              key={product.id} 
+                              product={product} 
+                              hasData={hasData}
+                              onClick={() => {
+                                if (hasData) {
+                                  setSelectedProduct(product);
+                                  setPage('product');
+                                }
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
+
+          {displayProducts.length === 0 && (
+            <div className="text-center py-32">
+              <p className="text-kael-purple italic">No pieces found matching your selection.</p>
+              <button 
+                onClick={() => { setSelectedCategory('All'); setSelectedCollection('All'); }}
+                className="mt-8 text-xs uppercase tracking-widest border-b border-kael-ink pb-1 hover:text-kael-gold hover:border-kael-gold transition-all"
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
