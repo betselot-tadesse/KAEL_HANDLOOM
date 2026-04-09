@@ -530,14 +530,15 @@ const Home = ({
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       {/* Hero Section */}
-      <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          <iframe
-            src="https://www.youtube.com/embed/jXyhZz5Gxuo?autoplay=1&mute=1&loop=1&playlist=jXyhZz5Gxuo&controls=0&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&enablejsapi=1"
-            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-[177.77vh] h-[56.25vw] -translate-x-1/2 -translate-y-1/2 brightness-[0.5] pointer-events-none"
-            allow="autoplay; encrypted-media"
-            frameBorder="0"
+      <section className="relative h-screen w-full overflow-hidden flex items-end md:items-center justify-center pt-20 md:pt-24 pb-20 md:pb-0">
+        <div className="absolute inset-x-0 bottom-0 top-20 md:top-24 z-0 pointer-events-none overflow-hidden">
+          <img 
+            src="https://i.ibb.co/mVLr0dyc/image-banner-main.jpg" 
+            alt="KAEL Hero Banner" 
+            className="w-full h-full object-cover object-center md:object-top brightness-[0.7] md:brightness-[0.6]"
+            referrerPolicy="no-referrer"
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 md:hidden" />
         </div>
         
         <div className="relative z-10 text-center text-white px-6">
@@ -545,7 +546,7 @@ const Home = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="micro-label text-white/80"
+            className="micro-label text-white/90 md:text-white/80"
           >
             A Handloom Luxury
           </motion.span>
@@ -553,7 +554,7 @@ const Home = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="text-6xl md:text-8xl font-bold mb-6 tracking-tighter"
+            className="text-5xl md:text-8xl font-bold mb-4 md:mb-6 tracking-tighter"
           >
             KAEL
           </motion.h1>
@@ -561,7 +562,7 @@ const Home = ({
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="text-lg md:text-xl font-light mb-12 max-w-2xl mx-auto leading-relaxed"
+            className="text-base md:text-xl font-light mb-10 md:mb-12 max-w-2xl mx-auto leading-relaxed px-4"
           >
             Crafted through tradition. Designed for timeless elegance.
           </motion.p>
@@ -570,7 +571,7 @@ const Home = ({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1 }}
             onClick={() => setPage('collections')}
-            className="btn-luxury border-white text-white hover:bg-white hover:text-kael-ink"
+            className="btn-luxury border-white text-white hover:bg-white hover:text-kael-ink px-10 md:px-12"
           >
             Explore Collection
           </motion.button>
@@ -585,71 +586,6 @@ const Home = ({
           <p className="text-lg text-kael-purple leading-loose italic">
             "At KAEL, we believe that luxury is not just what you wear, but the story behind it. Our textiles are woven by master artisans who have preserved heritage techniques for generations. We embrace the imperfections of the handloom, for they are the signatures of human touch."
           </p>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <Testimonials testimonials={testimonials} />
-
-      {/* Personalized Feed */}
-      <PersonalizedFeed 
-        userActivity={userActivity} 
-        products={products} 
-        setPage={setPage} 
-        setSelectedProduct={setSelectedProduct} 
-        trackView={trackView}
-      />
-
-      {/* Collection Spotlight */}
-      <section className="py-32 px-6 md:px-24 bg-kael-ink text-white overflow-hidden relative">
-        <div className="absolute inset-0 opacity-40 pointer-events-none">
-          <img 
-            src="https://i.ibb.co/dsJmWZnV/image-5.jpg" 
-            alt="Sea background" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
-            >
-              <span className="micro-label text-kael-gold">Collection 01</span>
-              <h2 className="serif-display text-white mt-4 mb-8">Beyond the Sea</h2>
-              <p className="text-lg text-white/80 leading-loose mb-10 italic">
-                “Beyond the Sea” reflects a meeting point—where the quiet stillness of the shore merges with the hidden richness beneath the water. Shells, corals, and shifting currents come together as a single language, translated through thoughtful embroidery and balanced forms.
-              </p>
-              <button 
-                onClick={() => setPage('collections')}
-                className="btn-luxury border-white text-white hover:bg-white hover:text-kael-ink"
-              >
-                Discover the Collection
-              </button>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.2 }}
-              className="relative aspect-[4/5] bg-white/5 backdrop-blur-sm p-4 border border-white/10"
-            >
-              <img 
-                src="https://i.ibb.co/MyKm64M6/image-beyond-the-sea.jpg" 
-                alt="Beyond the Sea Collection" 
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
-              />
-              <div className="absolute -bottom-10 -right-10 bg-kael-gold p-8 hidden md:block">
-                <p className="text-xs uppercase tracking-widest font-bold text-kael-ink leading-relaxed">
-                  Structured yet fluid.<br />Subtle yet expressive.
-                </p>
-              </div>
-            </motion.div>
-          </div>
         </div>
       </section>
 
@@ -686,21 +622,37 @@ const Home = ({
         </div>
       </section>
 
-      {/* The Craft */}
-      <section className="relative h-[80vh] w-full overflow-hidden">
-        <img 
-          src="https://images.unsplash.com/photo-1528154291023-a6525fabe5b4?auto=format&fit=crop&q=80&w=2000" 
-          alt="Weaving Process" 
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-kael-dark/20 flex items-center justify-center">
-          <div className="bg-white/90 backdrop-blur-sm p-12 md:p-20 max-w-2xl text-center shadow-2xl">
-            <span className="micro-label">The Process</span>
-            <h2 className="text-3xl font-bold mb-6">Heritage in Every Thread</h2>
-            <p className="text-sm text-kael-purple leading-relaxed mb-10">
-              Each KAEL textile takes weeks of meticulous labor. From hand-spinning the silk to the complex rhythmic dance of the loom, we honor the silence and focus required to create true luxury.
-            </p>
-            <button onClick={() => setPage('craft')} className="btn-luxury">Discover the Craft</button>
+      {/* Collection Spotlight */}
+      <section className="py-32 px-6 md:px-24 bg-kael-ink text-white overflow-hidden relative min-h-[80vh] flex items-center">
+        <div className="absolute inset-0 opacity-60 pointer-events-none">
+          <img 
+            src="https://i.ibb.co/PvwYSKmz/beyond-the-sea-collection.jpg" 
+            alt="Sea background" 
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+        <div className="max-w-7xl mx-auto relative z-10 w-full">
+          <div className="max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+            >
+              <span className="micro-label text-kael-gold">Collection 01</span>
+              <h2 className="text-6xl md:text-9xl font-bold text-white mt-4 mb-8 leading-none tracking-tighter uppercase">Beyond the <br /> Sea</h2>
+              <p className="text-lg md:text-xl text-white/95 leading-loose mb-10 italic font-light max-w-2xl">
+                “Beyond the Sea” reflects a meeting point—where the quiet stillness of the shore merges with the hidden richness beneath the water. Shells, corals, and shifting currents come together as a single language, translated through thoughtful embroidery and balanced forms.
+              </p>
+              <button 
+                onClick={() => setPage('collections')}
+                className="btn-luxury border-white text-white hover:bg-white hover:text-kael-ink px-12"
+              >
+                Discover the Collection
+              </button>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -735,6 +687,34 @@ const Home = ({
         </div>
       </section>
 
+      {/* Testimonials */}
+      <Testimonials testimonials={testimonials} />
+
+      {/* The Craft */}
+      <section className="relative h-[90vh] w-full overflow-hidden">
+        <img 
+          src="https://i.ibb.co/wHCV6n2/craft-4.jpg" 
+          alt="Heritage Craft Background" 
+          className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-black/10 flex items-center justify-center p-6">
+          <div className="bg-[#F2F2F2] p-12 md:p-24 max-w-4xl text-center shadow-2xl">
+            <span className="micro-label text-kael-gold mb-6">The Process</span>
+            <h2 className="text-4xl md:text-6xl font-bold mb-10 tracking-tight text-kael-ink">Heritage in Every Thread</h2>
+            <p className="text-base text-kael-purple leading-relaxed mb-12 max-w-2xl mx-auto">
+              Each KAEL textile takes weeks of meticulous labor. From hand-spinning the silk to the complex rhythmic dance of the loom, we honor the silence and focus required to create true luxury.
+            </p>
+            <button 
+              onClick={() => setPage('craft')} 
+              className="px-12 py-4 border border-kael-ink text-kael-ink uppercase tracking-[0.3em] text-sm hover:bg-kael-ink hover:text-white transition-all duration-500"
+            >
+              Discover the Craft
+            </button>
+          </div>
+        </div>
+      </section>
+
     </motion.div>
   );
 };
@@ -753,25 +733,25 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
       {
         title: 'Our Path',
         content: 'In a time where fashion often moves too fast and feels increasingly uniform, KAEL chooses a different path. One that values time, intention, and the beauty of things made by hand.',
-        imageUrl: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?auto=format&fit=crop&q=80&w=1000',
+        imageUrl: 'https://i.ibb.co/rfG2Fgn3/craft-1.jpg',
         imagePosition: 'right'
       },
       {
         title: 'The Heart of Handloom',
         content: 'At the heart of KAEL lies handloom — fabrics woven with patience, carrying a natural texture and depth that no machine can replicate. These textiles become the foundation of each piece, brought to life through delicate hand embroidery, added slowly and thoughtfully, never to overwhelm, but to enhance.',
-        imageUrl: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&q=80&w=1000',
+        imageUrl: 'https://i.ibb.co/mrQKf3FQ/craft-2.jpg',
         imagePosition: 'left'
       },
       {
         title: 'Integrity in Process',
         content: 'Every garment is created in limited numbers, not just for exclusivity, but to preserve the integrity of the process. Behind each piece are skilled hands, quiet dedication, and stories woven into every thread.',
-        imageUrl: 'https://images.unsplash.com/photo-1590736704728-f4730bb30770?auto=format&fit=crop&q=80&w=1000',
+        imageUrl: 'https://i.ibb.co/Y7HDnKHD/craft-3.jpg',
         imagePosition: 'right'
       },
       {
         title: 'Modern Craftsmanship',
         content: 'KAEL is deeply rooted in craftsmanship, yet shaped for the present. It reimagines traditional techniques through a modern lens — creating silhouettes that are refined, effortless, and timeless.',
-        imageUrl: 'https://images.unsplash.com/photo-1528476513691-07e6f563d97f?auto=format&fit=crop&q=80&w=1000',
+        imageUrl: 'https://i.ibb.co/QWmbmSd/portrait-1.jpg',
         imagePosition: 'left'
       },
       {
@@ -3093,7 +3073,13 @@ export default function App() {
       updatedAt: new Date().toISOString()
     };
 
-    const updatedActivity = { ...currentActivity };
+    const updatedActivity: UserActivity = {
+      uid: currentActivity.uid,
+      viewedProductIds: currentActivity.viewedProductIds,
+      preferredCategories: currentActivity.preferredCategories,
+      updatedAt: new Date().toISOString()
+    };
+
     if (type === 'product') {
       if (!updatedActivity.viewedProductIds.includes(id)) {
         updatedActivity.viewedProductIds = [id, ...updatedActivity.viewedProductIds].slice(0, 20);
@@ -3102,7 +3088,6 @@ export default function App() {
         updatedActivity.preferredCategories = [category, ...updatedActivity.preferredCategories].slice(0, 5);
       }
     }
-    updatedActivity.updatedAt = new Date().toISOString();
 
     setUserActivity(updatedActivity);
     if (user) {
