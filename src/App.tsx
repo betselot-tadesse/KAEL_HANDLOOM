@@ -1336,6 +1336,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
 
 const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest?: Page) => void, user: User | null, setIsSimpleAdminLoggedIn: (b: boolean) => void }) => {
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -1343,6 +1344,7 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
   const handleSimpleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setLoading(true);
     
     let email = username;
     let finalPassword = password;
@@ -1355,49 +1357,72 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
       email = `${username.toLowerCase()}@kael.ae`;
     }
     
+    console.log('Attempting login for:', email);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, finalPassword);
+      const userCredential = await signInWithEmailAndPassword(auth, email, finalPassword);
+      console.log('Login successful:', userCredential.user.email);
       onLogin('admin');
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error('Login error details:', err);
       if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
         setError('Invalid credentials. Please ensure the user exists in Firebase and Email/Password auth is enabled.');
       } else if (err.code === 'auth/operation-not-allowed') {
         setError('Email/Password login is not enabled in your Firebase Console.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection or Firebase configuration.');
       } else {
-        setError('Login failed: ' + err.message);
+        setError(`Login failed: ${err.message || 'Unknown error'}`);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleLogin = async () => {
     setError('');
+    const provider = new GoogleAuthProvider();
+    
     try {
-      const provider = new GoogleAuthProvider();
+      // Trigger popup IMMEDIATELY to avoid browser blocking
       await signInWithPopup(auth, provider);
       onLogin();
     } catch (err: any) {
+      console.error('Google login error:', err);
       if (err.code === 'auth/popup-blocked') {
-        setError('Login popup was blocked. Please allow popups or try again.');
+        setError('Login popup was blocked. Please allow popups in your browser settings and try again.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('This domain (kael-handloom.vercel.app) is not authorized in Firebase. Please see the instructions I provided to fix this.');
       } else {
-        setError('Login failed. Please try again.');
+        setError(`Login failed: ${err.message}`);
       }
     }
   };
 
   if (user) {
+    const isAdminUser = user.email?.toLowerCase() === 'betsiflash@gmail.com' || 
+                        user.email?.toLowerCase() === 'kael21.ae@gmail.com' || 
+                        user.email?.toLowerCase() === 'kael@kael.ae';
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-kael-paper px-6">
         <div className="bg-white p-12 shadow-2xl max-w-md w-full text-center">
           <Logo />
           <h2 className="text-2xl font-bold mt-8 mb-4">Welcome Back</h2>
-          <p className="text-sm text-kael-purple mb-10">You are currently signed in as {user.email}.</p>
+          <p className="text-sm text-kael-purple mb-4">You are currently signed in as {user.email}.</p>
+          
+          {!isAdminUser && (
+            <div className="bg-red-50 border border-red-200 p-4 mb-8 rounded text-red-700 text-xs">
+              This account does not have administrator privileges. Please sign in with an authorized admin account.
+            </div>
+          )}
+
           <div className="space-y-4">
             <button 
               onClick={() => onLogin()}
               className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold"
             >
-              Go to Dashboard
+              Go to {isAdminUser ? 'Dashboard' : 'Store'}
             </button>
             <button 
               onClick={() => signOut(auth)}
@@ -1424,15 +1449,17 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
             <p className="text-sm text-kael-purple mb-10">Sign in to your account to manage your orders or access the atelier dashboard.</p>
             <button 
               onClick={handleGoogleLogin}
-              className="btn-luxury w-full flex items-center justify-center space-x-3"
+              disabled={loading}
+              className="btn-luxury w-full flex items-center justify-center space-x-3 disabled:opacity-50"
             >
               <UserIcon size={18} />
-              <span>Sign in with Google</span>
+              <span>{loading ? 'Connecting...' : 'Sign in with Google'}</span>
             </button>
             <div className="pt-6 border-t border-kael-gold/10">
               <button 
                 onClick={() => setShowAdminLogin(true)}
-                className="text-[10px] uppercase tracking-widest text-kael-gold hover:text-kael-ink transition-colors"
+                disabled={loading}
+                className="text-[10px] uppercase tracking-widest text-kael-gold hover:text-kael-ink transition-colors disabled:opacity-50"
               >
                 Admin Login with Credentials
               </button>
@@ -1449,6 +1476,7 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
                 className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
               />
             </div>
             <div>
@@ -1458,15 +1486,21 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
                 className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
               />
             </div>
-            <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
-              Login as Admin
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold disabled:opacity-50"
+            >
+              {loading ? 'Verifying...' : 'Login as Admin'}
             </button>
             <button 
               type="button"
               onClick={() => setShowAdminLogin(false)}
-              className="w-full text-[10px] uppercase tracking-widest text-kael-purple hover:text-kael-ink transition-colors"
+              disabled={loading}
+              className="w-full text-[10px] uppercase tracking-widest text-kael-purple hover:text-kael-ink transition-colors disabled:opacity-50"
             >
               Back to Google Sign In
             </button>
@@ -3063,9 +3097,12 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
+      console.log('Auth state changed:', u?.email);
       setUser(u);
       const email = u?.email?.toLowerCase();
-      setIsAdmin(email === 'betsiflash@gmail.com' || email === 'kael21.ae@gmail.com' || email === 'kael@kael.ae');
+      const isAdm = email === 'betsiflash@gmail.com' || email === 'kael21.ae@gmail.com' || email === 'kael@kael.ae';
+      console.log('Is Admin:', isAdm);
+      setIsAdmin(isAdm);
     });
     return () => unsubscribe();
   }, []);
