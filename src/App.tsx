@@ -140,7 +140,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       return (
         <div className="min-h-screen flex items-center justify-center bg-kael-paper p-6 text-center">
           <div className="max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Atelier Error</h2>
+            <h2 className="text-2xl font-bold mb-4">KAEL Error</h2>
             <p className="text-kael-purple mb-8">{displayMessage}</p>
             <button 
               onClick={() => window.location.reload()}
@@ -336,8 +336,8 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
         <div>
           <h4 className="text-xs uppercase tracking-widest font-bold mb-6">Contact</h4>
           <ul className="space-y-4 text-xs text-kael-purple leading-relaxed">
-            <li>Atelier KAEL<br />Heritage Lane, Varanasi</li>
-            <li>concierge@kael.luxury</li>
+            <li>KAEL<br />Heritage Lane, Varanasi</li>
+            <li>kael21.ae@gmail.com</li>
             <li>+91 98765 43210</li>
           </ul>
         </div>
@@ -999,7 +999,7 @@ const Contact = ({ pageContents }: { pageContents: PageContent[] }) => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <span className="micro-label">{content?.subtitle || 'Connect With Us'}</span>
-          <h1 className="serif-display mt-4 mb-8">{content?.title || 'Contact the Atelier'}</h1>
+          <h1 className="serif-display mt-4 mb-8">{content?.title || 'Contact KAEL'}</h1>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-20">
@@ -1008,7 +1008,7 @@ const Contact = ({ pageContents }: { pageContents: PageContent[] }) => {
               <ReactMarkdown>
                 {content?.content || `
 ### Inquiries
-For bespoke requests, collection inquiries, or to visit our atelier, please reach out via WhatsApp or Email.
+For bespoke requests, collection inquiries, or to visit us, please reach out via WhatsApp or Email.
                 `}
               </ReactMarkdown>
             </div>
@@ -1026,7 +1026,7 @@ For bespoke requests, collection inquiries, or to visit our atelier, please reac
               {!content?.sections?.length && (
                 <div className="space-y-4 text-sm">
                   <p><strong>WhatsApp:</strong> +971 569728661</p>
-                  <p><strong>Email:</strong> atelier@kael.com</p>
+                  <p><strong>Email:</strong> kael21.ae@gmail.com</p>
                   <p><strong>Location:</strong> Dubai, UAE</p>
                 </div>
               )}
@@ -1152,17 +1152,11 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
             >
               Add to Cart
             </button>
-            <button 
-              onClick={() => {
-                const phoneNumber = "971569728661";
-                const message = `Hello KAEL Atelier, I am interested in purchasing the ${product.name} (SKU: ${product.sku || 'N/A'}).\n\nPrice: AED ${product.price.toLocaleString()}\n\nPlease let me know the next steps. Thank you!`;
-                const encodedMessage = encodeURIComponent(message);
-                window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
-              }}
-              className="btn-luxury w-full border border-kael-gold text-kael-ink hover:bg-kael-gold hover:text-white flex items-center justify-center"
-            >
-              <MessageCircle size={16} className="mr-2" /> Purchase via WhatsApp
-            </button>
+            <div className="py-4 border-y border-kael-gold/10 flex items-center justify-center space-x-3">
+              <div className="w-1 h-1 rounded-full bg-kael-gold"></div>
+              <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-kael-ink">Shipping free in UAE</span>
+              <div className="w-1 h-1 rounded-full bg-kael-gold"></div>
+            </div>
 
             <div className="pt-8 border-t border-kael-gold/10">
               <h4 className="text-[10px] uppercase tracking-widest font-bold mb-4 text-kael-purple text-center">Share this Creation</h4>
@@ -1170,7 +1164,7 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
                 <button 
                   onClick={() => {
                     const url = encodeURIComponent(window.location.href);
-                    const text = encodeURIComponent(`Discover ${product.name} at KAEL Atelier`);
+                    const text = encodeURIComponent(`Discover ${product.name} at KAEL`);
                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
                   }}
                   className="text-kael-ink hover:text-kael-gold transition-colors"
@@ -1181,7 +1175,7 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
                 <button 
                   onClick={() => {
                     const url = encodeURIComponent(window.location.href);
-                    const text = encodeURIComponent(`Discover ${product.name} at KAEL Atelier`);
+                    const text = encodeURIComponent(`Discover ${product.name} at KAEL`);
                     window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
                   }}
                   className="text-kael-ink hover:text-kael-gold transition-colors"
@@ -1193,7 +1187,7 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
                   onClick={() => {
                     const url = encodeURIComponent(window.location.href);
                     const media = encodeURIComponent(product.imageUrls[0]);
-                    const description = encodeURIComponent(`Discover ${product.name} at KAEL Atelier`);
+                    const description = encodeURIComponent(`Discover ${product.name} at KAEL`);
                     window.open(`https://www.pinterest.com/pin/create/button/?url=${url}&media=${media}&description=${description}`, '_blank');
                   }}
                   className="text-kael-ink hover:text-kael-gold transition-colors"
@@ -1253,7 +1247,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
 
   const handleCheckout = () => {
     const phoneNumber = "971569728661"; // Updated WhatsApp number
-    const message = `Hello KAEL Atelier, I would like to place an order for:\n\n${cart.map(item => `- ${item.name} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${(item.price * item.quantity).toLocaleString()}`).join('\n')}\n\nTotal: AED ${total.toLocaleString()}\n\nPlease let me know the next steps. Thank you!`;
+    const message = `Hello KAEL, I would like to place an order for:\n\n${cart.map(item => `- ${item.name} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${(item.price * item.quantity).toLocaleString()}`).join('\n')}\n\nTotal: AED ${total.toLocaleString()}\n\nPlease let me know the next steps. Thank you!`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
   };
@@ -1314,7 +1308,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-kael-purple">Shipping</span>
-                <span>Complimentary</span>
+                <span className="text-kael-gold font-bold">Free in UAE</span>
               </div>
               <div className="flex justify-between text-lg font-bold border-t border-kael-gold/20 pt-4">
                 <span>Total</span>
@@ -1354,7 +1348,7 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
       email = 'kael21.ae@gmail.com';
       finalPassword = 'Kael@10611313';
     } else if (!username.includes('@')) {
-      email = `${username.toLowerCase()}@kael.ae`;
+      email = `${username.toLowerCase()}@gmail.com`;
     }
     
     console.log('Attempting login for:', email);
@@ -1401,8 +1395,7 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
 
   if (user) {
     const isAdminUser = user.email?.toLowerCase() === 'betsiflash@gmail.com' || 
-                        user.email?.toLowerCase() === 'kael21.ae@gmail.com' || 
-                        user.email?.toLowerCase() === 'kael@kael.ae';
+                        user.email?.toLowerCase() === 'kael21.ae@gmail.com';
 
     return (
       <div className="min-h-screen flex items-center justify-center bg-kael-paper px-6">
@@ -1440,13 +1433,13 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
     <div className="min-h-screen flex items-center justify-center bg-kael-paper px-6">
       <div className="bg-white p-12 shadow-2xl max-w-md w-full text-center">
         <Logo />
-        <h2 className="text-2xl font-bold mt-8 mb-4">Atelier Access</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-4">KAEL Access</h2>
         
         {error && <p className="text-red-500 text-xs mb-6">{error}</p>}
 
         {!showAdminLogin ? (
           <div className="space-y-6">
-            <p className="text-sm text-kael-purple mb-10">Sign in to your account to manage your orders or access the atelier dashboard.</p>
+            <p className="text-sm text-kael-purple mb-10">Sign in to your account to manage your orders or access the KAEL dashboard.</p>
             <button 
               onClick={handleGoogleLogin}
               disabled={loading}
@@ -2078,7 +2071,7 @@ const AdminDashboard = ({
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <div>
-            <h1 className="text-3xl font-bold">Atelier Dashboard</h1>
+            <h1 className="text-3xl font-bold">KAEL Dashboard</h1>
             <p className="text-sm text-kael-purple mt-2 italic">Manage your products, collections, and orders.</p>
           </div>
           <div className="flex flex-wrap items-center gap-4">
@@ -3014,7 +3007,7 @@ const PersonalizedFeed = ({
       <div className="max-w-7xl mx-auto px-6 md:px-12">
         <div className="mb-12">
           <span className="micro-label">Curated For You</span>
-          <h2 className="serif-display mt-2">Personalized Atelier</h2>
+          <h2 className="serif-display mt-2">Personalized KAEL</h2>
         </div>
 
         {recommendedProducts.length > 0 && (
@@ -3100,7 +3093,7 @@ export default function App() {
       console.log('Auth state changed:', u?.email);
       setUser(u);
       const email = u?.email?.toLowerCase();
-      const isAdm = email === 'betsiflash@gmail.com' || email === 'kael21.ae@gmail.com' || email === 'kael@kael.ae';
+      const isAdm = email === 'betsiflash@gmail.com' || email === 'kael21.ae@gmail.com';
       console.log('Is Admin:', isAdm);
       setIsAdmin(isAdm);
     });
