@@ -680,7 +680,7 @@ const Home = ({
               transition={{ duration: 1 }}
             >
               <span className="micro-label text-kael-gold">Collection 01</span>
-              <h2 className="text-6xl md:text-9xl font-bold text-white mt-4 mb-8 leading-none tracking-tighter uppercase">Beyond the <br /> Sea</h2>
+              <h2 className="text-4xl md:text-6xl font-bold text-white mt-4 mb-8 leading-none tracking-tighter uppercase">Beyond the <br /> Sea</h2>
               <p className="text-lg md:text-xl text-white/95 leading-loose mb-10 italic font-light max-w-2xl">
                 “Beyond the Sea” reflects a meeting point—where the quiet stillness of the shore merges with the hidden richness beneath the water. Shells, corals, and shifting currents come together as a single language, translated through thoughtful embroidery and balanced forms.
               </p>
