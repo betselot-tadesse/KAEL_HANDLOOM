@@ -335,7 +335,7 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
         <div>
           <h4 className="text-xs uppercase tracking-widest font-bold mb-6">Contact</h4>
           <ul className="space-y-4 text-xs text-kael-purple leading-relaxed">
-            <li>Heritage Lane, Varanasi</li>
+            <li>UAE</li>
             <li>kael21.ae@gmail.com</li>
             <li>+91 98765 43210</li>
           </ul>
