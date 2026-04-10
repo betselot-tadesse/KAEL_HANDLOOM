@@ -525,7 +525,7 @@ const Home = ({
 }) => {
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const heroImages = [
-    "https://i.ibb.co/CKpBM2PB/image-banner-main.jpg",
+    "https://i.ibb.co/0Rr5PDjL/image-5.jpg",
     "https://i.ibb.co/JWFKq8ZX/image-2.jpg",
     "https://i.ibb.co/Q7cBMtmm/image-3.jpg",
     "https://i.ibb.co/v6XQTVq9/image-4.jpg"
