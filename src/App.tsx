@@ -42,7 +42,7 @@ import {
 } from 'firebase/firestore';
 import { 
   signInWithPopup, 
-  signInWithRedirect,
+  signInWithEmailAndPassword,
   GoogleAuthProvider, 
   onAuthStateChanged, 
   signOut,
@@ -1334,34 +1334,51 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
   );
 };
 
-const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: () => void, user: User | null, setIsSimpleAdminLoggedIn: (b: boolean) => void }) => {
+const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest?: Page) => void, user: User | null, setIsSimpleAdminLoggedIn: (b: boolean) => void }) => {
   const [error, setError] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showAdminLogin, setShowAdminLogin] = useState(false);
 
-  const handleSimpleLogin = (e: React.FormEvent) => {
+  const handleSimpleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === 'Kael' && password === '1061') {
-      setIsSimpleAdminLoggedIn(true);
-      onLogin();
-    } else {
-      setError('Invalid username or password.');
+    setError('');
+    
+    let email = username;
+    let finalPassword = password;
+
+    // Shortcut for the admin
+    if (username.toLowerCase() === 'kael' && password === '1061') {
+      email = 'kael21.ae@gmail.com';
+      finalPassword = 'Kael@10611313';
+    } else if (!username.includes('@')) {
+      email = `${username.toLowerCase()}@kael.ae`;
+    }
+    
+    try {
+      await signInWithEmailAndPassword(auth, email, finalPassword);
+      onLogin('admin');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setError('Invalid credentials. Please ensure the user exists in Firebase and Email/Password auth is enabled.');
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError('Email/Password login is not enabled in your Firebase Console.');
+      } else {
+        setError('Login failed: ' + err.message);
+      }
     }
   };
 
-  const handleGoogleLogin = async (useRedirect = false) => {
+  const handleGoogleLogin = async () => {
+    setError('');
     try {
       const provider = new GoogleAuthProvider();
-      if (useRedirect) {
-        await signInWithRedirect(auth, provider);
-      } else {
-        await signInWithPopup(auth, provider);
-        onLogin();
-      }
+      await signInWithPopup(auth, provider);
+      onLogin();
     } catch (err: any) {
       if (err.code === 'auth/popup-blocked') {
-        setError('Login popup was blocked by your browser. Please allow popups or use the "Sign in with Redirect" option below.');
+        setError('Login popup was blocked. Please allow popups or try again.');
       } else {
         setError('Login failed. Please try again.');
       }
@@ -1405,27 +1422,14 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: () =>
         {!showAdminLogin ? (
           <div className="space-y-6">
             <p className="text-sm text-kael-purple mb-10">Sign in to your account to manage your orders or access the atelier dashboard.</p>
-            <div className="space-y-4">
-              <button 
-                onClick={() => handleGoogleLogin(false)}
-                className="btn-luxury w-full flex items-center justify-center space-x-3"
-              >
-                <UserIcon size={18} />
-                <span>Sign in with Google (Popup)</span>
-              </button>
-              <button 
-                onClick={() => handleGoogleLogin(true)}
-                className="btn-luxury w-full flex items-center justify-center space-x-3 bg-white text-kael-ink border border-kael-ink hover:bg-kael-ink hover:text-white"
-              >
-                <UserIcon size={18} />
-                <span>Sign in with Google (Redirect)</span>
-              </button>
-            </div>
-            
+            <button 
+              onClick={handleGoogleLogin}
+              className="btn-luxury w-full flex items-center justify-center space-x-3"
+            >
+              <UserIcon size={18} />
+              <span>Sign in with Google</span>
+            </button>
             <div className="pt-6 border-t border-kael-gold/10">
-              <p className="text-[10px] text-kael-purple/60 mb-4 italic">
-                Note: If you are on a mobile browser or Vercel, use the "Redirect" option if the popup is blocked.
-              </p>
               <button 
                 onClick={() => setShowAdminLogin(true)}
                 className="text-[10px] uppercase tracking-widest text-kael-gold hover:text-kael-ink transition-colors"
@@ -1438,9 +1442,10 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: () =>
           <form onSubmit={handleSimpleLogin} className="space-y-6 text-left">
             <p className="text-sm text-kael-purple mb-6 text-center">Enter your administrative credentials.</p>
             <div>
-              <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Username</label>
+              <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Email or Username</label>
               <input 
                 type="text" required
+                placeholder="e.g. Kael"
                 className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
@@ -3059,7 +3064,8 @@ export default function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
-      setIsAdmin(u?.email === 'betsiflash@gmail.com' || u?.email === 'Kael21.ae@gmail.com');
+      const email = u?.email?.toLowerCase();
+      setIsAdmin(email === 'betsiflash@gmail.com' || email === 'kael21.ae@gmail.com' || email === 'kael@kael.ae');
     });
     return () => unsubscribe();
   }, []);
@@ -3181,8 +3187,8 @@ export default function App() {
       case 'contact': return <Contact pageContents={pageContents} />;
       case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} userActivity={userActivity} trackView={trackView} />;
       case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} />;
-      case 'login': return <LoginPage onLogin={() => setPage(effectiveIsAdmin ? 'admin' : 'home')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} /> : <LoginPage onLogin={() => setPage('admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
+      case 'login': return <LoginPage onLogin={(dest) => setPage(dest || (effectiveIsAdmin ? 'admin' : 'home'))} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
+      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} /> : <LoginPage onLogin={(dest) => setPage(dest || 'admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
       case 'collections': return <Collections products={products} categories={categories} collections={collections} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} />;
       default: return (
         <div className="pt-48 pb-32 px-6 text-center">

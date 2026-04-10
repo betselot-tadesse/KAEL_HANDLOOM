@@ -33,8 +33,9 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         ((exists(/databases/$(database)/documents/users/$(request.auth.uid)) && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin') ||
-         (request.auth.token.email == "betsiflash@gmail.com" && request.auth.token.email_verified == true) ||
-         (request.auth.token.email == "Kael21.ae@gmail.com" && request.auth.token.email_verified == true));
+         (request.auth.token.email.lower() == "betsiflash@gmail.com") ||
+         (request.auth.token.email.lower() == "kael21.ae@gmail.com") ||
+         (request.auth.token.email.lower() == "kael@kael.ae"));
     }
 
     function isOwner(userId) {
