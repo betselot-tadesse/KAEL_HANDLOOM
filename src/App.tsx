@@ -19,7 +19,8 @@ import {
   Pin,
   Link as LinkIcon,
   Home as HomeIcon,
-  User as UserIcon
+  User as UserIcon,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -41,6 +42,7 @@ import {
 } from 'firebase/firestore';
 import { 
   signInWithPopup, 
+  signInWithRedirect,
   GoogleAuthProvider, 
   onAuthStateChanged, 
   signOut,
@@ -814,17 +816,20 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
       </section>
 
       {/* 2. Opening Statement */}
-      <section className="py-48 px-6 md:px-24 bg-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.h2 
+      <section className="py-32 px-6 md:px-24 bg-white border-b border-kael-gold/5">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="serif-display text-3xl md:text-5xl leading-tight text-kael-ink italic font-light"
+            transition={{ duration: 1 }}
           >
-            "{activeContent.content}"
-          </motion.h2>
-          <div className="w-px h-32 bg-kael-gold/20 mx-auto mt-20" />
+            <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-kael-gold/60 mb-12 block">The Genesis</span>
+            <h2 className="serif-display text-xl md:text-3xl leading-relaxed text-kael-ink italic font-light tracking-tight">
+              "{activeContent.content}"
+            </h2>
+            <div className="w-px h-24 bg-kael-gold/20 mx-auto mt-16" />
+          </motion.div>
         </div>
       </section>
 
@@ -881,48 +886,32 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
 
       {/* 4. Immersive Full-bleed Section */}
       {activeContent.sections?.find(s => s.title === 'The Feeling') && (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-kael-ink py-32">
+        <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-kael-ink py-24">
           <div className="absolute inset-0">
             <img 
               src="https://images.unsplash.com/photo-1505118380757-91f5f45d8de6?auto=format&fit=crop&q=80&w=2000" 
               alt="Atmospheric background" 
-              className="w-full h-full object-cover opacity-20 scale-110 blur-[2px]"
+              className="w-full h-full object-cover opacity-10 scale-110 blur-[4px]"
               referrerPolicy="no-referrer"
             />
           </div>
-          <div className="relative z-10 max-w-4xl mx-auto text-center text-white px-6">
+          <div className="relative z-10 max-w-3xl mx-auto text-center text-white px-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1.5 }}
             >
-              <span className="text-[10px] uppercase tracking-[1em] font-bold text-kael-gold mb-16 block opacity-60">The Essence</span>
-              <h2 className="serif-display text-xl md:text-3xl lg:text-4xl leading-[1.8] mb-16 italic font-light tracking-wide">
+              <span className="text-[9px] uppercase tracking-[0.8em] font-bold text-kael-gold mb-12 block opacity-80">The Essence</span>
+              <h2 className="serif-display text-lg md:text-2xl leading-[2] mb-12 italic font-light tracking-wide text-white/90">
                 {activeContent.sections.find(s => s.title === 'The Feeling')?.content}
               </h2>
-              <div className="w-12 h-px bg-kael-gold mx-auto opacity-40" />
+              <div className="w-8 h-px bg-kael-gold/40 mx-auto" />
             </motion.div>
           </div>
         </section>
       )}
 
-      {/* 5. Visionary Signature Section */}
-      <section className="py-60 bg-kael-paper text-center relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-px h-40 bg-kael-gold/20" />
-        <div className="max-w-2xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 2 }}
-          >
-            <span className="text-[10px] uppercase tracking-[0.5em] text-kael-gold font-bold mb-6 block">A Vision By</span>
-            <h2 className="serif-display text-6xl md:text-8xl text-kael-ink tracking-tighter">Anusree</h2>
-            <p className="mt-12 text-xs uppercase tracking-[0.3em] text-kael-purple font-medium">Founder & Creative Director</p>
-          </motion.div>
-        </div>
-      </section>
     </motion.div>
   );
 };
@@ -1361,13 +1350,21 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: () =>
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (useRedirect = false) => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      onLogin();
-    } catch (err) {
-      setError('Login failed. Please try again.');
+      if (useRedirect) {
+        await signInWithRedirect(auth, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+        onLogin();
+      }
+    } catch (err: any) {
+      if (err.code === 'auth/popup-blocked') {
+        setError('Login popup was blocked by your browser. Please allow popups or use the "Sign in with Redirect" option below.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     }
   };
 
@@ -1408,14 +1405,27 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: () =>
         {!showAdminLogin ? (
           <div className="space-y-6">
             <p className="text-sm text-kael-purple mb-10">Sign in to your account to manage your orders or access the atelier dashboard.</p>
-            <button 
-              onClick={handleGoogleLogin}
-              className="btn-luxury w-full flex items-center justify-center space-x-3"
-            >
-              <UserIcon size={18} />
-              <span>Sign in with Google</span>
-            </button>
+            <div className="space-y-4">
+              <button 
+                onClick={() => handleGoogleLogin(false)}
+                className="btn-luxury w-full flex items-center justify-center space-x-3"
+              >
+                <UserIcon size={18} />
+                <span>Sign in with Google (Popup)</span>
+              </button>
+              <button 
+                onClick={() => handleGoogleLogin(true)}
+                className="btn-luxury w-full flex items-center justify-center space-x-3 bg-white text-kael-ink border border-kael-ink hover:bg-kael-ink hover:text-white"
+              >
+                <UserIcon size={18} />
+                <span>Sign in with Google (Redirect)</span>
+              </button>
+            </div>
+            
             <div className="pt-6 border-t border-kael-gold/10">
+              <p className="text-[10px] text-kael-purple/60 mb-4 italic">
+                Note: If you are on a mobile browser or Vercel, use the "Redirect" option if the popup is blocked.
+              </p>
               <button 
                 onClick={() => setShowAdminLogin(true)}
                 className="text-[10px] uppercase tracking-widest text-kael-gold hover:text-kael-ink transition-colors"
@@ -1764,6 +1774,8 @@ const AdminDashboard = ({
   const [isAddingPage, setIsAddingPage] = useState(false);
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);
   
+  const isFirebaseAuthorized = !!auth.currentUser;
+
   // Form State
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: '',
@@ -2028,55 +2040,67 @@ const AdminDashboard = ({
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
           <div>
             <h1 className="text-3xl font-bold">Atelier Dashboard</h1>
-            <p className="text-sm text-kael-purple mt-2">Manage your products, collections, and orders.</p>
+            <p className="text-sm text-kael-purple mt-2 italic">Manage your products, collections, and orders.</p>
           </div>
-          <div className="flex space-x-4">
-            <button 
-              onClick={() => setActiveTab('products')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'products' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
-            >
-              Products
-            </button>
-            <button 
-              onClick={() => setActiveTab('orders')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'orders' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
-            >
-              Orders
-            </button>
-            <button 
-              onClick={() => setActiveTab('collections')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'collections' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
-            >
-              Collections
-            </button>
-            <button 
-              onClick={() => setActiveTab('testimonials')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'testimonials' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
-            >
-              Testimonials
-            </button>
-            <button 
-              onClick={() => setActiveTab('categories')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'categories' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
-            >
-              Categories
-            </button>
-            <button 
-              onClick={() => setActiveTab('pages')}
-              className={cn("px-6 py-2 text-xs uppercase tracking-widest transition-all", activeTab === 'pages' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
-            >
-              Pages
-            </button>
-            <button 
-              onClick={() => setPage('home')}
-              className="px-6 py-2 text-xs uppercase tracking-widest bg-white text-kael-ink border border-kael-gold/20 hover:bg-kael-paper flex items-center"
-            >
-              <HomeIcon size={14} className="mr-2" />
-              Back to Store
-            </button>
-            <button onClick={() => { signOut(auth); setIsSimpleAdminLoggedIn(false); }} className="px-6 py-2 text-xs uppercase tracking-widest bg-red-50 text-red-600 border border-red-100">
-              Logout
-            </button>
+          <div className="flex flex-wrap items-center gap-4">
+            {!isFirebaseAuthorized && (
+              <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg flex items-center gap-3 max-w-xs">
+                <div className="text-amber-600"><AlertCircle size={20} /></div>
+                <p className="text-[10px] text-amber-800 leading-tight">
+                  <strong>Limited Access:</strong> You are logged in with credentials. To save changes to the database, please <button onClick={() => setPage('login')} className="underline font-bold">Sign in with Google</button>.
+                </p>
+              </div>
+            )}
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => setActiveTab('products')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'products' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Products
+              </button>
+              <button 
+                onClick={() => setActiveTab('orders')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'orders' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Orders
+              </button>
+              <button 
+                onClick={() => setActiveTab('collections')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'collections' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Collections
+              </button>
+              <button 
+                onClick={() => setActiveTab('testimonials')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'testimonials' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Testimonials
+              </button>
+              <button 
+                onClick={() => setActiveTab('categories')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'categories' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Categories
+              </button>
+              <button 
+                onClick={() => setActiveTab('pages')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'pages' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Pages
+              </button>
+            </div>
+            <div className="flex space-x-2">
+              <button 
+                onClick={() => setPage('home')}
+                className="px-4 py-2 text-[10px] uppercase tracking-widest bg-white text-kael-ink border border-kael-gold/20 hover:bg-kael-paper flex items-center"
+              >
+                <HomeIcon size={14} className="mr-2" />
+                Store
+              </button>
+              <button onClick={() => { signOut(auth); setIsSimpleAdminLoggedIn(false); setPage('home'); }} className="px-4 py-2 text-[10px] uppercase tracking-widest bg-red-50 text-red-600 border border-red-100">
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 
