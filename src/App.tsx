@@ -175,7 +175,6 @@ const Logo = () => (
       className="h-10 w-auto object-contain mix-blend-multiply"
       referrerPolicy="no-referrer"
     />
-    <span className="font-bold text-xl tracking-[0.2em] text-kael-ink">KAEL</span>
   </div>
 );
 
@@ -336,7 +335,7 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
         <div>
           <h4 className="text-xs uppercase tracking-widest font-bold mb-6">Contact</h4>
           <ul className="space-y-4 text-xs text-kael-purple leading-relaxed">
-            <li>KAEL<br />Heritage Lane, Varanasi</li>
+            <li>Heritage Lane, Varanasi</li>
             <li>kael21.ae@gmail.com</li>
             <li>+91 98765 43210</li>
           </ul>
@@ -434,25 +433,25 @@ const ProductCard = ({ product, hasData, onClick }: { product: Product, hasData:
 const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) => {
   const defaultTestimonials: Testimonial[] = [
     {
-      customerName: "Avinash Kr",
-      content: "The craftsmanship of the handloom silk is unlike anything I've ever worn. It feels like wearing a piece of history and the attention to detail is breathtaking.",
-      location: "Co-Founder at xyz",
+      customerName: "S. Al Mansoori",
+      content: "I’ve never worn something that feels this considered. You can sense the time and care in every detail. It’s quiet, but powerful.",
+      location: "UAE",
       avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200",
       rating: 5,
       createdAt: new Date().toISOString()
     },
     {
-      customerName: "Bharat Kunal",
-      content: "KAEL's attention to detail in their embroidery is breathtaking. Each piece is truly a work of art. I highly recommend their collections for anyone seeking quality.",
-      location: "Manager at xyz",
+      customerName: "R. Kapoor",
+      content: "The fabric is unlike anything I’ve experienced before — soft, textured, and full of depth. It doesn’t feel manufactured, it feels made.",
+      location: "India",
       avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=200",
       rating: 5,
       createdAt: new Date().toISOString()
     },
     {
-      customerName: "Prabhakar D",
-      content: "I appreciate the slow fashion approach. Knowing that my tunic was woven over 45 days makes it so much more meaningful. The quality is simply unparalleled.",
-      location: "Founder / CEO at xyz",
+      customerName: "A. Menon",
+      content: "KAEL doesn’t try to stand out loudly — and that’s exactly why it does. It feels refined, effortless, and deeply personal.",
+      location: "UAE",
       avatarUrl: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&q=80&w=200",
       rating: 5,
       createdAt: new Date().toISOString()
@@ -524,6 +523,21 @@ const Home = ({
   userActivity: UserActivity | null,
   trackView: (type: 'product' | 'collection', id: string, category?: string) => void
 }) => {
+  const [currentHeroImage, setCurrentHeroImage] = useState(0);
+  const heroImages = [
+    "https://i.ibb.co/CKpBM2PB/image-banner-main.jpg",
+    "https://i.ibb.co/JWFKq8ZX/image-2.jpg",
+    "https://i.ibb.co/Q7cBMtmm/image-3.jpg",
+    "https://i.ibb.co/v6XQTVq9/image-4.jpg"
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentHeroImage((prev) => (prev + 1) % heroImages.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
+
   const featuredProducts = products
     .filter(p => p.isFeatured)
     .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
@@ -534,13 +548,35 @@ const Home = ({
       {/* Hero Section */}
       <section className="relative h-screen w-full overflow-hidden flex items-end md:items-center justify-center pt-20 md:pt-24 pb-20 md:pb-0">
         <div className="absolute inset-x-0 bottom-0 top-20 md:top-24 z-0 pointer-events-none overflow-hidden">
-          <img 
-            src="https://i.ibb.co/mVLr0dyc/image-banner-main.jpg" 
-            alt="KAEL Hero Banner" 
-            className="w-full h-full object-cover object-center md:object-top brightness-[0.7] md:brightness-[0.6]"
-            referrerPolicy="no-referrer"
-          />
+          <AnimatePresence mode="wait">
+            <motion.img 
+              key={currentHeroImage}
+              src={heroImages[currentHeroImage]} 
+              alt={`KAEL Hero Banner ${currentHeroImage + 1}`} 
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              className="w-full h-full object-cover object-center md:object-top brightness-[0.7] md:brightness-[0.6]"
+              referrerPolicy="no-referrer"
+            />
+          </AnimatePresence>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 md:hidden" />
+          
+          {/* Slider Indicators */}
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex space-x-3 z-20 pointer-events-auto">
+            {heroImages.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentHeroImage(idx)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-all duration-500",
+                  currentHeroImage === idx ? "bg-white w-8" : "bg-white/40 hover:bg-white/60"
+                )}
+                aria-label={`Go to slide ${idx + 1}`}
+              />
+            ))}
+          </div>
         </div>
         
         <div className="relative z-10 text-center text-white px-6">
@@ -669,22 +705,30 @@ const Home = ({
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
-              { name: 'Mens Wear', img: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=800' },
-              { name: 'Womens Wear', img: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800' },
-              { name: 'Modest', img: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&q=80&w=800' }
-            ].map((col) => (
-              <div 
-                key={col.name} 
-                className="relative aspect-[4/5] overflow-hidden group cursor-pointer"
-                onClick={() => setPage('collections')}
-              >
-                <img src={col.img} alt={col.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500 flex flex-col items-center justify-center text-white">
-                  <h3 className="text-2xl font-bold uppercase tracking-widest">{col.name}</h3>
-                  <span className="mt-4 text-[10px] uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity duration-500">View Collection</span>
+              { name: 'Mens Wear', fallback: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=800' },
+              { name: 'Womens Wear', fallback: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800' },
+              { name: 'Modest', fallback: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&q=80&w=800' }
+            ].map((col) => {
+              const categoryProducts = products.filter(p => p.category === col.name);
+              const sortedProducts = [...categoryProducts].sort((a, b) => 
+                new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+              );
+              const firstProduct = sortedProducts[0];
+              const img = firstProduct?.imageUrls[0] || col.fallback;
+              return (
+                <div 
+                  key={col.name} 
+                  className="relative aspect-[4/5] overflow-hidden group cursor-pointer"
+                  onClick={() => setPage('collections')}
+                >
+                  <img src={img} alt={col.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500 flex flex-col items-center justify-center text-white">
+                    <h3 className="text-2xl font-bold uppercase tracking-widest">{col.name}</h3>
+                    <span className="mt-4 text-[10px] uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity duration-500">View Collection</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
