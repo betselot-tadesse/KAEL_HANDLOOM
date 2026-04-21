@@ -123,6 +123,31 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["pageId", "title", "updatedAt"]
+    },
+    "HeroSlide": {
+      "title": "Hero Slide",
+      "description": "An image for the home page hero slider",
+      "type": "object",
+      "properties": {
+        "imageUrl": { "type": "string" },
+        "order": { "type": "number", "description": "Display order" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["imageUrl"]
+    },
+    "CollectionSlide": {
+      "title": "Collection Slide",
+      "description": "A featured collection showcase slide on the home page",
+      "type": "object",
+      "properties": {
+        "collectionName": { "type": "string", "description": "E.g. Collection 01" },
+        "title": { "type": "string", "description": "Title of the showcase" },
+        "description": { "type": "string", "description": "A poetic description or quote" },
+        "imageUrl": { "type": "string" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["collectionName", "title", "description", "imageUrl"]
     }
   },
   "firestore": {
@@ -157,6 +182,14 @@
     "page_content": {
       "schema": "PageContent",
       "description": "Collection of page contents"
+    },
+    "hero_slides": {
+      "schema": "HeroSlide",
+      "description": "Images for the home page hero slider"
+    },
+    "collection_slides": {
+      "schema": "CollectionSlide",
+      "description": "Showcase slides for core collections"
     }
   }
 }

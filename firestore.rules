@@ -137,6 +137,18 @@ service cloud.firestore {
       allow create, update: if isOwner(userId) && isValidUserActivity(request.resource.data);
     }
 
+    // Hero Slides: Publicly readable, Admin can write
+    match /hero_slides/{slideId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Collection Slides: Publicly readable, Admin can write
+    match /collection_slides/{slideId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Test Connection: Publicly readable for diagnostics
     match /test/connection {
       allow read: if true;

@@ -8,7 +8,6 @@ import {
   Search,
   Instagram, 
   Facebook, 
-  Twitter, 
   Plus, 
   Trash2, 
   LogOut, 
@@ -156,7 +155,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
     return this.props.children;
   }
 }
-import { Product, Order, OrderItem, Category, Page, UserProfile, Collection, Testimonial, UserActivity, PageContent } from './types';
+import { Product, Order, OrderItem, Category, Page, UserProfile, Collection, Testimonial, UserActivity, PageContent, HeroSlide, CollectionSlide } from './types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -315,9 +314,10 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
             KAEL is a celebration of heritage weaving, where every thread tells a story of craftsmanship and timeless elegance.
           </p>
           <div className="flex space-x-6 mt-8">
-            <Instagram size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
+            <a href="https://www.instagram.com/kael_handloom" target="_blank" rel="noopener noreferrer">
+              <Instagram size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
+            </a>
             <Facebook size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
-            <Twitter size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
           </div>
         </div>
         
@@ -336,8 +336,8 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
           <h4 className="text-xs uppercase tracking-widest font-bold mb-6">Contact</h4>
           <ul className="space-y-4 text-xs text-kael-purple leading-relaxed">
             <li>UAE</li>
-            <li>kael21.ae@gmail.com</li>
-            <li>+91 98765 43210</li>
+            <li>info@rozanakitchen.com</li>
+            <li>+971569728661</li>
           </ul>
         </div>
       </div>
@@ -379,7 +379,7 @@ const ProductCard = ({ product, hasData, onClick }: { product: Product, hasData:
         <img 
           src={product.imageUrls[currentImageIndex]} 
           alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
           referrerPolicy="no-referrer"
         />
         {!hasData && (
@@ -513,6 +513,8 @@ const Home = ({
   setSelectedProduct,
   products,
   testimonials,
+  heroSlides,
+  collectionSlides,
   userActivity,
   trackView
 }: { 
@@ -520,16 +522,36 @@ const Home = ({
   setSelectedProduct: (p: Product) => void,
   products: Product[],
   testimonials: Testimonial[],
+  heroSlides: HeroSlide[],
+  collectionSlides: CollectionSlide[],
   userActivity: UserActivity | null,
   trackView: (type: 'product' | 'collection', id: string, category?: string) => void
 }) => {
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
-  const heroImages = [
-    "https://i.ibb.co/0Rr5PDjL/image-5.jpg",
-    "https://i.ibb.co/JWFKq8ZX/image-2.jpg",
-    "https://i.ibb.co/Q7cBMtmm/image-3.jpg",
-    "https://i.ibb.co/v6XQTVq9/image-4.jpg"
-  ];
+  const [currentCollectionSlide, setCurrentCollectionSlide] = useState(0);
+
+  const heroImages = heroSlides.length > 0 
+    ? heroSlides.map(s => s.imageUrl)
+    : [
+        "https://i.ibb.co/0Rr5PDjL/image-5.jpg",
+        "https://i.ibb.co/JWFKq8ZX/image-2.jpg",
+        "https://i.ibb.co/Qv45KQMm/image-4.jpg",
+        "https://i.ibb.co/gb3qQ0h0/image-3.jpg"
+      ];
+
+  const displayCollectionSlides = collectionSlides.length > 0 
+    ? collectionSlides 
+    : [
+        {
+          id: 'default-1',
+          collectionName: "Collection 01",
+          title: "Beyond the Sea",
+          description: "“Beyond the Sea” reflects a meeting point—where the quiet stillness of the shore merges with the hidden richness beneath the water. Shells, corals, and shifting currents come together as a single language, translated through thoughtful embroidery and balanced forms.",
+          imageUrl: "https://i.ibb.co/PvwYSKmz/beyond-the-sea-collection.jpg",
+          order: 0,
+          createdAt: new Date().toISOString()
+        }
+      ];
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -537,6 +559,14 @@ const Home = ({
     }, 5000);
     return () => clearInterval(timer);
   }, [heroImages.length]);
+
+  useEffect(() => {
+    if (displayCollectionSlides.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentCollectionSlide((prev) => (prev + 1) % displayCollectionSlides.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, [displayCollectionSlides.length]);
 
   const featuredProducts = products
     .filter(p => p.isFeatured)
@@ -557,7 +587,7 @@ const Home = ({
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 1.5, ease: "easeOut" }}
-              className="w-full h-full object-cover object-center md:object-top brightness-[0.7] md:brightness-[0.6]"
+              className="w-full h-full object-cover object-top brightness-[0.7] md:brightness-[0.6]"
               referrerPolicy="no-referrer"
             />
           </AnimatePresence>
@@ -660,38 +690,72 @@ const Home = ({
         </div>
       </section>
 
-      {/* Collection Spotlight */}
-      <section className="py-32 px-6 md:px-24 bg-kael-ink text-white overflow-hidden relative min-h-[80vh] flex items-center">
-        <div className="absolute inset-0 opacity-60 pointer-events-none">
-          <img 
-            src="https://i.ibb.co/PvwYSKmz/beyond-the-sea-collection.jpg" 
-            alt="Sea background" 
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-          <div className="absolute inset-0 bg-black/40" />
-        </div>
-        <div className="max-w-7xl mx-auto relative z-10 w-full">
+      {/* Collection Spotlight Slider */}
+      <section className="relative py-32 bg-kael-ink text-white overflow-hidden min-h-[80vh] flex items-center">
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={currentCollectionSlide}
+            className="absolute inset-0 z-0"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1 }}
+          >
+            <img 
+              src={displayCollectionSlides[currentCollectionSlide].imageUrl} 
+              alt={displayCollectionSlides[currentCollectionSlide].title} 
+              className="w-full h-full object-cover object-top opacity-60"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-black/40" />
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="max-w-7xl mx-auto relative z-10 w-full px-6 md:px-24">
           <div className="max-w-3xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
-            >
-              <span className="micro-label text-kael-gold">Collection 01</span>
-              <h2 className="text-4xl md:text-6xl font-bold text-white mt-4 mb-8 leading-none tracking-tighter uppercase">Beyond the <br /> Sea</h2>
-              <p className="text-lg md:text-xl text-white/95 leading-loose mb-10 italic font-light max-w-2xl">
-                “Beyond the Sea” reflects a meeting point—where the quiet stillness of the shore merges with the hidden richness beneath the water. Shells, corals, and shifting currents come together as a single language, translated through thoughtful embroidery and balanced forms.
-              </p>
-              <button 
-                onClick={() => setPage('collections')}
-                className="btn-luxury border-white text-white hover:bg-white hover:text-kael-ink px-12"
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentCollectionSlide}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -30 }}
+                transition={{ duration: 0.8 }}
               >
-                Discover the Collection
-              </button>
-            </motion.div>
+                <span className="micro-label text-kael-gold">
+                  {displayCollectionSlides[currentCollectionSlide].collectionName}
+                </span>
+                <h2 className="text-4xl md:text-6xl font-bold text-white mt-4 mb-8 leading-tight tracking-tighter uppercase">
+                   {displayCollectionSlides[currentCollectionSlide].title}
+                </h2>
+                <p className="text-lg md:text-xl text-white/95 leading-loose mb-10 italic font-light max-w-2xl">
+                  {displayCollectionSlides[currentCollectionSlide].description}
+                </p>
+                <button 
+                  onClick={() => setPage('collections')}
+                  className="btn-luxury border-white text-white hover:bg-white hover:text-kael-ink px-12"
+                >
+                  Discover the Collection
+                </button>
+              </motion.div>
+            </AnimatePresence>
           </div>
+
+          {/* Slider Indicators */}
+          {displayCollectionSlides.length > 1 && (
+            <div className="absolute bottom-[-60px] md:bottom-auto md:right-12 md:top-1/2 md:-translate-y-1/2 flex md:flex-col space-x-3 md:space-x-0 md:space-y-4 justify-center">
+              {displayCollectionSlides.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentCollectionSlide(idx)}
+                  className={cn(
+                    "w-1.5 h-1.5 md:w-2 md:h-12 transition-all duration-500",
+                    currentCollectionSlide === idx ? "bg-kael-gold h-4 md:bg-kael-gold" : "bg-white/20 hover:bg-white/40"
+                  )}
+                  aria-label={`Go to collection slide ${idx + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -721,7 +785,7 @@ const Home = ({
                   className="relative aspect-[4/5] overflow-hidden group cursor-pointer"
                   onClick={() => setPage('collections')}
                 >
-                  <img src={img} alt={col.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+                  <img src={img} alt={col.name} className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500 flex flex-col items-center justify-center text-white">
                     <h3 className="text-2xl font-bold uppercase tracking-widest">{col.name}</h3>
                     <span className="mt-4 text-[10px] uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity duration-500">View Collection</span>
@@ -838,7 +902,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 1 }}
-            className="text-[10px] uppercase tracking-[0.6em] font-bold text-kael-gold mb-8"
+            className="text-[12px] md:text-[14px] uppercase tracking-[0.6em] font-bold text-kael-gold mb-8"
           >
             {activeContent.subtitle}
           </motion.span>
@@ -868,7 +932,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
             viewport={{ once: true }}
             transition={{ duration: 1 }}
           >
-            <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-kael-gold/60 mb-12 block">The Genesis</span>
+            <span className="text-sm md:text-base uppercase tracking-[0.4em] font-bold text-kael-gold/60 mb-12 block">The Genesis</span>
             <h2 className="serif-display text-xl md:text-3xl leading-relaxed text-kael-ink italic font-light tracking-tight">
               "{activeContent.content}"
             </h2>
@@ -915,7 +979,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
                   idx % 2 === 0 ? "lg:order-2 lg:col-start-9" : "lg:order-1 lg:col-start-1"
                 )}
               >
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-kael-gold mb-6">
+                <span className="text-[11px] md:text-[13px] uppercase tracking-[0.4em] font-bold text-kael-gold mb-6">
                   {String(idx + 1).padStart(2, '0')} / {section.title}
                 </span>
                 <h3 className="serif-display text-4xl mb-8 leading-tight">{section.title}</h3>
@@ -946,7 +1010,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
               viewport={{ once: true }}
               transition={{ duration: 1.5 }}
             >
-              <span className="text-[9px] uppercase tracking-[0.8em] font-bold text-kael-gold mb-12 block opacity-80">The Essence</span>
+              <span className="text-sm md:text-base uppercase tracking-[0.8em] font-bold text-kael-gold mb-12 block opacity-80">The Essence</span>
               <h2 className="serif-display text-lg md:text-2xl leading-[2] mb-12 italic font-light tracking-wide text-white/90">
                 {activeContent.sections.find(s => s.title === 'The Feeling')?.content}
               </h2>
@@ -1032,6 +1096,13 @@ const Craft = ({ pageContents }: { pageContents: PageContent[] }) => {
 
 const Contact = ({ pageContents }: { pageContents: PageContent[] }) => {
   const content = pageContents.find(p => p.pageId === 'contact');
+  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+
+  const handleSendWhatsApp = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = `Name: ${formData.name}%0AEmail: ${formData.email}%0AMessage: ${formData.message}`;
+    window.open(`https://wa.me/971569728661?text=${text}`, '_blank');
+  };
 
   return (
     <motion.div 
@@ -1070,7 +1141,7 @@ For bespoke requests, collection inquiries, or to visit us, please reach out via
               {!content?.sections?.length && (
                 <div className="space-y-4 text-sm">
                   <p><strong>WhatsApp:</strong> +971 569728661</p>
-                  <p><strong>Email:</strong> kael21.ae@gmail.com</p>
+                  <p><strong>Email:</strong> info@rozanakitchen.com</p>
                   <p><strong>Location:</strong> Dubai, UAE</p>
                 </div>
               )}
@@ -1079,20 +1150,35 @@ For bespoke requests, collection inquiries, or to visit us, please reach out via
           
           <div className="bg-white p-10 shadow-sm border border-kael-gold/10 h-fit">
             <h3 className="text-sm font-bold uppercase tracking-widest mb-8">Send a Message</h3>
-            <form className="space-y-6">
+            <form onSubmit={handleSendWhatsApp} className="space-y-6">
               <div>
                 <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Name</label>
-                <input type="text" className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold" />
+                <input 
+                  type="text" required
+                  className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold" 
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                />
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Email</label>
-                <input type="email" className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold" />
+                <input 
+                  type="email" required
+                  className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold" 
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Message</label>
-                <textarea className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold h-32"></textarea>
+                <textarea 
+                  required
+                  className="w-full border-b border-kael-gold/20 py-2 focus:outline-none focus:border-kael-gold h-32"
+                  value={formData.message}
+                  onChange={(e) => setFormData({...formData, message: e.target.value})}
+                ></textarea>
               </div>
-              <button type="button" className="btn-luxury w-full">Send Inquiry</button>
+              <button type="submit" className="btn-luxury w-full">Send Inquiry</button>
             </form>
           </div>
         </div>
@@ -1101,8 +1187,248 @@ For bespoke requests, collection inquiries, or to visit us, please reach out via
   );
 };
 
-const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Product, setPage: (p: Page) => void, addToCart: (p: Product) => void, trackView: (type: 'product' | 'collection', id: string, category?: string) => void }) => {
+const SizeChartModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const [activeGender, setActiveGender] = useState<'women' | 'men' | 'girls' | 'boys'>('women');
+
+  const womenSizes = [
+    { size: 'XXS', bust: '30', waist: '24', hips: '32' },
+    { size: 'XS', bust: '32', waist: '26', hips: '34' },
+    { size: 'S', bust: '34', waist: '28', hips: '36' },
+    { size: 'M', bust: '36', waist: '30', hips: '38' },
+    { size: 'L', bust: '38', waist: '32', hips: '40' },
+    { size: 'XL', bust: '40', waist: '34', hips: '42' },
+    { size: 'XXL', bust: '42', waist: '36', hips: '44' },
+  ];
+
+  const menSizes = [
+    { size: 'XS', chest: '36', shoulder: '17', waist: '30', lowWaist: '32', hips: '38' },
+    { size: 'S', chest: '38', shoulder: '17.5', waist: '32', lowWaist: '34', hips: '40' },
+    { size: 'M', chest: '40', shoulder: '18', waist: '34', lowWaist: '36', hips: '42' },
+    { size: 'L', chest: '42', shoulder: '18.5', waist: '36', lowWaist: '38', hips: '44' },
+    { size: 'XL', chest: '44', shoulder: '19', waist: '38', lowWaist: '40', hips: '46' },
+    { size: 'XXL', chest: '46', shoulder: '19.5', waist: '40', lowWaist: '42', hips: '48' },
+  ];
+
+  const girlsSizes = [
+    { age: '0-6M', length: '22', chest: '19', waist: '18', shoulder: '7', knee: '14', blouse: '5.5', skirt: '8' },
+    { age: '6-12M', length: '24', chest: '20', waist: '19', shoulder: '7.5', knee: '15', blouse: '6', skirt: '9' },
+    { age: '1-2Y', length: '25', chest: '21', waist: '20', shoulder: '8', knee: '16.5', blouse: '8', skirt: '10' },
+    { age: '2-3Y', length: '29', chest: '22', waist: '21', shoulder: '9', knee: '18.5', blouse: '8.5', skirt: '12' },
+    { age: '3-4Y', length: '32', chest: '23', waist: '22', shoulder: '9.5', knee: '19.5', blouse: '9', skirt: '13' },
+    { age: '4-5Y', length: '34', chest: '24', waist: '23', shoulder: '10', knee: '20.5', blouse: '9.5', skirt: '14' },
+    { age: '5-6Y', length: '35', chest: '25', waist: '24', shoulder: '10', knee: '21.5', blouse: '10', skirt: '15' },
+    { age: '6-7Y', length: '38', chest: '26', waist: '25', shoulder: '10.5', knee: '23', blouse: '10', skirt: '17' },
+    { age: '7-8Y', length: '41', chest: '27', waist: '26', shoulder: '10.5', knee: '25', blouse: '11', skirt: '18' },
+    { age: '8-9Y', length: '44', chest: '28', waist: '27', shoulder: '11', knee: '27', blouse: '13', skirt: '20' },
+    { age: '9-10Y', length: '48', chest: '29', waist: '28', shoulder: '11', knee: '28', blouse: '15', skirt: '22' },
+  ];
+
+  const boysSizes = [
+    { age: '0-6M', length: '22', chest: '19', waist: '18', shoulder: '7' },
+    { age: '6-12M', length: '24', chest: '20', waist: '19', shoulder: '7.5' },
+    { age: '1-2Y', length: '25', chest: '21', waist: '20', shoulder: '8' },
+    { age: '2-3Y', length: '29', chest: '22', waist: '21', shoulder: '9' },
+    { age: '3-4Y', length: '32', chest: '23', waist: '22', shoulder: '9.5' },
+    { age: '4-5Y', length: '34', chest: '24', waist: '23', shoulder: '10' },
+    { age: '5-6Y', length: '35', chest: '25', waist: '24', shoulder: '10' },
+    { age: '6-7Y', length: '38', chest: '26', waist: '25', shoulder: '10.5' },
+    { age: '7-8Y', length: '41', chest: '28', waist: '26', shoulder: '10.5' },
+    { age: '8-9Y', length: '44', chest: '30', waist: '27', shoulder: '11' },
+    { age: '9-10Y', length: '48', chest: '32', waist: '28', shoulder: '11' },
+  ];
+
+  if (!isOpen) return null;
+
+  return (
+    <AnimatePresence>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-[100] bg-kael-ink/60 backdrop-blur-sm flex items-center justify-center p-4 md:p-6"
+        onClick={onClose}
+      >
+        <motion.div 
+          initial={{ scale: 0.95, y: 20 }}
+          animate={{ scale: 1, y: 0 }}
+          exit={{ scale: 0.95, y: 20 }}
+          className="bg-white max-w-4xl w-full h-[90vh] overflow-hidden flex flex-col shadow-2xl rounded-none border border-black"
+          onClick={e => e.stopPropagation()}
+        >
+          <div className="flex justify-between items-center p-6 border-b border-gray-100">
+            <h2 className="text-2xl font-bold uppercase tracking-widest">Size Chart</h2>
+            <button onClick={onClose} className="hover:rotate-90 transition-transform duration-300">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="flex justify-center gap-2 p-6 bg-white border-b border-gray-100 overflow-x-auto no-scrollbar">
+            {(['women', 'men', 'girls', 'boys'] as const).map((gender) => (
+              <button
+                key={gender}
+                onClick={() => setActiveGender(gender)}
+                className={cn(
+                  "px-6 py-2 text-[10px] uppercase tracking-widest font-bold transition-all whitespace-nowrap rounded-full border border-black",
+                  activeGender === gender ? "bg-black text-white" : "bg-white text-black hover:bg-gray-100"
+                )}
+              >
+                {gender === 'women' ? "Women's" : gender === 'men' ? "Men's" : gender === 'girls' ? "Girl's" : "Boy's"}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar bg-white">
+            <div className="text-center mb-12">
+              <h3 className="text-lg font-bold text-red-600 uppercase tracking-widest mb-4">KNOW YOUR BODY MEASUREMENTS</h3>
+              <p className="text-xs text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
+                Wear well-fitted clothes and stand up straight.
+              </p>
+              
+              <div className="max-w-xl mx-auto text-left space-y-3 text-[11px] uppercase tracking-wider font-medium">
+                <div className="flex gap-16">
+                  <span className="w-20 font-bold shrink-0">BUST:</span>
+                  <span>Measure under the arms at the fullest part around the bust.</span>
+                </div>
+                <div className="flex gap-16">
+                  <span className="w-20 font-bold shrink-0">WAIST:</span>
+                  <span>Measure around the natural waistline, without holding your breath.</span>
+                </div>
+                <div className="flex gap-16">
+                  <span className="w-20 font-bold shrink-0">HIPS:</span>
+                  <span>Stand with your feet together and measure around fullest part of your hips.</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center mb-16">
+              <h4 className="text-sm font-bold uppercase tracking-widest mb-8">
+                {activeGender === 'women' ? "WOMEN'S SIZE CHART" : activeGender === 'men' ? "MEN'S SIZE CHART" : activeGender === 'girls' ? "GIRL'S SIZE CHART" : "BOY'S SIZE CHART"}
+              </h4>
+              <img 
+                src={
+                  activeGender === 'women' ? "https://i.ibb.co/SXFf48gP/Screenshot-2026-04-21-at-20-34-07-Size-Chart-Suee-Sewing-Tradition.png" :
+                  activeGender === 'men' ? "https://i.ibb.co/xS9kMzJr/Screenshot-2026-04-21-at-20-24-49-Size-Chart-Suee-Sewing-Tradition.png" :
+                  activeGender === 'girls' ? "https://i.ibb.co/bMM96Yjr/Screenshot-2026-04-21-at-20-34-27-Size-Chart-Suee-Sewing-Tradition.png" :
+                  "https://i.ibb.co/MxNdJ4Ww/Screenshot-2026-04-21-at-20-34-46-Size-Chart-Suee-Sewing-Tradition.png"
+                } 
+                alt={`${activeGender} measurement diagram`}
+                className="max-h-[400px] w-auto mb-16 object-contain mix-blend-multiply"
+                referrerPolicy="no-referrer"
+              />
+
+              <h4 className="text-sm font-bold uppercase tracking-widest mb-6">
+                Body measurements for {activeGender === 'women' ? "Women" : activeGender === 'men' ? "Men" : activeGender === 'girls' ? "Girl's" : "Boy's"} (In Inches)
+              </h4>
+
+              <div className="w-full overflow-x-auto border border-black">
+                <table className="w-full text-[11px] uppercase tracking-widest text-center border-collapse">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-black font-bold">
+                      {activeGender === 'women' && (
+                        <>
+                          <th className="p-4 border-r border-black">SIZES</th>
+                          <th className="p-4 border-r border-black">BUST</th>
+                          <th className="p-4 border-r border-black">WAIST</th>
+                          <th className="p-4">HIPS</th>
+                        </>
+                      )}
+                      {activeGender === 'men' && (
+                        <>
+                          <th className="p-4 border-r border-black">SIZES</th>
+                          <th className="p-4 border-r border-black">CHEST</th>
+                          <th className="p-4 border-r border-black">SHOULDER</th>
+                          <th className="p-4 border-r border-black">WAIST</th>
+                          <th className="p-4 border-r border-black">LOW WAIST</th>
+                          <th className="p-4">HIPS</th>
+                        </>
+                      )}
+                      {activeGender === 'girls' && (
+                        <>
+                          <th className="p-4 border-r border-black">AGE</th>
+                          <th className="p-4 border-r border-black">LENGTH</th>
+                          <th className="p-4 border-r border-black">CHEST</th>
+                          <th className="p-4 border-r border-black">WAIST</th>
+                          <th className="p-4 border-r border-black">SHOULDER</th>
+                          <th className="p-4 border-r border-black">SHOULDER -KNEE</th>
+                          <th className="p-4 border-r border-black">BLOUSE LENGTH</th>
+                          <th className="p-4">SKIRT LENGTH</th>
+                        </>
+                      )}
+                      {activeGender === 'boys' && (
+                        <>
+                          <th className="p-4 border-r border-black">AGE</th>
+                          <th className="p-4 border-r border-black">LENGTH</th>
+                          <th className="p-4 border-r border-black">CHEST</th>
+                          <th className="p-4 border-r border-black">WAIST</th>
+                          <th className="p-4">SHOULDER</th>
+                        </>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {activeGender === 'women' && womenSizes.map((row, i) => (
+                      <tr key={i} className="border-b border-gray-200 last:border-b-0">
+                        <td className="p-4 border-r border-black font-bold">{row.size}</td>
+                        <td className="p-4 border-r border-black">{row.bust}</td>
+                        <td className="p-4 border-r border-black">{row.waist}</td>
+                        <td className="p-4">{row.hips}</td>
+                      </tr>
+                    ))}
+                    {activeGender === 'men' && menSizes.map((row, i) => (
+                      <tr key={i} className="border-b border-gray-200 last:border-b-0">
+                        <td className="p-4 border-r border-black font-bold">{row.size}</td>
+                        <td className="p-4 border-r border-black">{row.chest}</td>
+                        <td className="p-4 border-r border-black">{row.shoulder}</td>
+                        <td className="p-4 border-r border-black">{row.waist}</td>
+                        <td className="p-4 border-r border-black">{row.lowWaist}</td>
+                        <td className="p-4">{row.hips}</td>
+                      </tr>
+                    ))}
+                    {activeGender === 'girls' && girlsSizes.map((row, i) => (
+                      <tr key={i} className="border-b border-gray-200 last:border-b-0">
+                        <td className="p-4 border-r border-black font-bold">{row.age}</td>
+                        <td className="p-4 border-r border-black">{row.length}</td>
+                        <td className="p-4 border-r border-black">{row.chest}</td>
+                        <td className="p-4 border-r border-black">{row.waist}</td>
+                        <td className="p-4 border-r border-black">{row.shoulder}</td>
+                        <td className="p-4 border-r border-black">{row.knee}</td>
+                        <td className="p-4 border-r border-black">{row.blouse}</td>
+                        <td className="p-4">{row.skirt}</td>
+                      </tr>
+                    ))}
+                    {activeGender === 'boys' && boysSizes.map((row, i) => (
+                      <tr key={i} className="border-b border-gray-200 last:border-b-0">
+                        <td className="p-4 border-r border-black font-bold">{row.age}</td>
+                        <td className="p-4 border-r border-black">{row.length}</td>
+                        <td className="p-4 border-r border-black">{row.chest}</td>
+                        <td className="p-4 border-r border-black">{row.waist}</td>
+                        <td className="p-4">{row.shoulder}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 bg-white border-t border-gray-100 flex justify-center">
+            <button 
+              onClick={onClose}
+              className="px-12 py-3 bg-black text-white text-[10px] uppercase tracking-widest font-bold hover:bg-kael-gold transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+};
+
+const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Product, setPage: (p: Page) => void, addToCart: (p: Product, size?: string) => void, trackView: (type: 'product' | 'collection', id: string, category?: string) => void }) => {
   const [selectedImage, setSelectedImage] = useState(product.imageUrls[0]);
+  const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined);
 
   useEffect(() => {
     trackView('product', product.id!, product.category);
@@ -1115,15 +1441,16 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
       exit={{ opacity: 0 }}
       className="pt-32 pb-20 px-6 md:px-12 max-w-7xl mx-auto"
     >
-      <button onClick={() => setPage('collections')} className="flex items-center text-[10px] uppercase tracking-widest mb-12 hover:text-kael-gold transition-colors">
-        <ArrowLeft size={14} className="mr-2" /> Back to Collection
+      <SizeChartModal isOpen={isSizeChartOpen} onClose={() => setIsSizeChartOpen(false)} />
+      <button onClick={() => setPage('collections')} className="flex items-center text-sm uppercase tracking-widest mb-12 hover:text-kael-gold transition-colors font-medium">
+        <ArrowLeft size={18} className="mr-2" /> Back to Collection
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
         {/* Left: Gallery */}
         <div className="space-y-6">
           <div className="aspect-[3/4] bg-white overflow-hidden">
-            <img src={selectedImage} alt={product.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+            <img src={selectedImage} alt={product.name} className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
           </div>
           <div className="grid grid-cols-5 gap-4">
             {product.imageUrls.map((url, idx) => (
@@ -1145,7 +1472,7 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
         <div className="flex flex-col justify-center">
           <div className="flex justify-between items-start">
             <span className="micro-label">{product.category}</span>
-            {product.sku && <span className="text-[10px] text-kael-gold tracking-widest uppercase font-bold">SKU: {product.sku}</span>}
+            {product.sku && <span className="text-[11px] md:text-[12px] text-kael-gold tracking-widest uppercase font-bold">SKU: {product.sku}</span>}
           </div>
           <h1 className="text-4xl font-bold mt-2 mb-2 tracking-tight">{product.name}</h1>
           {product.tagline && <p className="text-sm italic text-kael-purple mb-4">"{product.tagline}"</p>}
@@ -1174,24 +1501,39 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
 
             {product.sizes && product.sizes.length > 0 && (
               <div>
-                <h4 className="text-xs uppercase tracking-widest font-bold mb-3">Available Sizes</h4>
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-xs uppercase tracking-widest font-bold">Available Sizes</h4>
+                  <button 
+                    onClick={() => setIsSizeChartOpen(true)}
+                    className="text-[10px] uppercase tracking-widest font-bold text-kael-gold border-b border-kael-gold/30 pb-0.5 hover:text-kael-ink hover:border-kael-ink transition-all"
+                  >
+                    Size Chart
+                  </button>
+                </div>
                 <div className="flex flex-wrap gap-3">
                   {product.sizes.map(size => (
-                    <span key={size} className="px-4 py-2 border border-kael-gold/20 text-xs uppercase tracking-widest">{size}</span>
+                    <button 
+                      key={size} 
+                      onClick={() => setSelectedSize(size)}
+                      className={cn(
+                        "px-4 py-2 border text-xs uppercase tracking-widest transition-all",
+                        selectedSize === size 
+                          ? "border-kael-gold bg-kael-gold text-white" 
+                          : "border-kael-gold/20 hover:border-kael-gold/50"
+                      )}
+                    >
+                      {size}
+                    </button>
                   ))}
                 </div>
               </div>
             )}
 
-            <div>
-              <h4 className="text-xs uppercase tracking-widest font-bold mb-3">Material Details</h4>
-              <p className="text-sm text-kael-purple leading-relaxed">{product.materialDetails || "Hand-spun mulberry silk with pure zari borders."}</p>
-            </div>
           </div>
 
           <div className="flex flex-col space-y-4">
             <button 
-              onClick={() => addToCart(product)}
+              onClick={() => addToCart(product, selectedSize)}
               className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold"
             >
               Add to Cart
@@ -1215,17 +1557,6 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
                   title="Share on Facebook"
                 >
                   <Facebook size={18} />
-                </button>
-                <button 
-                  onClick={() => {
-                    const url = encodeURIComponent(window.location.href);
-                    const text = encodeURIComponent(`Discover ${product.name} at KAEL`);
-                    window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
-                  }}
-                  className="text-kael-ink hover:text-kael-gold transition-colors"
-                  title="Share on Twitter"
-                >
-                  <Twitter size={18} />
                 </button>
                 <button 
                   onClick={() => {
@@ -1283,15 +1614,15 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
 
 const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: { 
   cart: OrderItem[], 
-  updateQuantity: (id: string, q: number) => void, 
-  removeFromCart: (id: string) => void,
+  updateQuantity: (id: string, q: number, size?: string) => void, 
+  removeFromCart: (id: string, size?: string) => void,
   setPage: (p: Page) => void
 }) => {
   const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = () => {
     const phoneNumber = "971569728661"; // Updated WhatsApp number
-    const message = `Hello KAEL, I would like to place an order for:\n\n${cart.map(item => `- ${item.name} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${(item.price * item.quantity).toLocaleString()}`).join('\n')}\n\nTotal: AED ${total.toLocaleString()}\n\nPlease let me know the next steps. Thank you!`;
+    const message = `Hello KAEL, I would like to place an order for:\n\n${cart.map(item => `- ${item.name} ${item.size ? `(Size: ${item.size})` : ''} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${(item.price * item.quantity).toLocaleString()}`).join('\n')}\n\nTotal: AED ${total.toLocaleString()}\n\nPlease let me know the next steps. Thank you!`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
   };
@@ -1319,15 +1650,16 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
               </div>
               <div className="flex-grow">
                 <h3 className="text-sm font-bold uppercase tracking-wider">{item.name}</h3>
-                <p className="text-xs text-kael-gold mt-1">AED {item.price.toLocaleString()}</p>
+                {item.size && <p className="text-[10px] uppercase font-bold text-kael-gold mt-1">Size: {item.size}</p>}
+                <p className="text-xs text-kael-purple mt-1 font-medium">AED {item.price.toLocaleString()}</p>
                 <div className="flex items-center space-x-4 mt-4">
                   <button 
-                    onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                    onClick={() => updateQuantity(item.productId, item.quantity - 1, item.size)}
                     className="w-8 h-8 border border-kael-gold/20 flex items-center justify-center hover:bg-kael-gold/10"
                   >-</button>
                   <span className="text-sm">{item.quantity}</span>
                   <button 
-                    onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                    onClick={() => updateQuantity(item.productId, item.quantity + 1, item.size)}
                     className="w-8 h-8 border border-kael-gold/20 flex items-center justify-center hover:bg-kael-gold/10"
                   >+</button>
                 </div>
@@ -1335,7 +1667,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
               <div className="text-right">
                 <p className="text-sm font-bold">AED {(item.price * item.quantity).toLocaleString()}</p>
                 <button 
-                  onClick={() => removeFromCart(item.productId)}
+                  onClick={() => removeFromCart(item.productId, item.size)}
                   className="text-kael-purple hover:text-red-500 mt-4 transition-colors"
                 >
                   <Trash2 size={18} />
@@ -1418,22 +1750,29 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
   };
 
   const handleGoogleLogin = async () => {
+    if (loading) return;
     setError('');
+    setLoading(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     
     try {
-      // Trigger popup IMMEDIATELY to avoid browser blocking
       await signInWithPopup(auth, provider);
       onLogin();
     } catch (err: any) {
       console.error('Google login error:', err);
       if (err.code === 'auth/popup-blocked') {
-        setError('Login popup was blocked. Please allow popups in your browser settings and try again.');
+        setError('The login popup was blocked by your browser. Please click the button again, or allow popups for this site. If it still fails, try opening the app in a new tab.');
       } else if (err.code === 'auth/unauthorized-domain') {
-        setError('This domain (kael-handloom.vercel.app) is not authorized in Firebase. Please see the instructions I provided to fix this.');
+        setError('This domain is not authorized in Firebase. Please add this URL to your Authorized Domains in the Firebase Console (Auth > Settings).');
+      } else if (err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user') {
+        // Just clear error if user closed the popup or if a previous request was cancelled
+        setError('');
       } else {
         setError(`Login failed: ${err.message}`);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1492,6 +1831,9 @@ const LoginPage = ({ onLogin, user, setIsSimpleAdminLoggedIn }: { onLogin: (dest
               <UserIcon size={18} />
               <span>{loading ? 'Connecting...' : 'Sign in with Google'}</span>
             </button>
+            <p className="text-[9px] text-kael-purple/60 italic">
+              Tip: If login popup is blocked, try opening the site in a new tab.
+            </p>
             <div className="pt-6 border-t border-kael-gold/10">
               <button 
                 onClick={() => setShowAdminLogin(true)}
@@ -1827,7 +2169,9 @@ const AdminDashboard = ({
   collections,
   testimonials,
   categories,
-  pageContents
+  pageContents,
+  heroSlides,
+  collectionSlides
 }: { 
   setPage: (p: Page) => void, 
   setIsSimpleAdminLoggedIn: (b: boolean) => void,
@@ -1836,9 +2180,11 @@ const AdminDashboard = ({
   collections: Collection[],
   testimonials: Testimonial[],
   categories: Category[],
-  pageContents: PageContent[]
+  pageContents: PageContent[],
+  heroSlides: HeroSlide[],
+  collectionSlides: CollectionSlide[]
 }) => {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'collections' | 'testimonials' | 'categories' | 'pages'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'collections' | 'testimonials' | 'categories' | 'pages' | 'slides' | 'collection_slides'>('products');
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingCollection, setIsAddingCollection] = useState(false);
@@ -1849,6 +2195,10 @@ const AdminDashboard = ({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isAddingPage, setIsAddingPage] = useState(false);
   const [editingPage, setEditingPage] = useState<PageContent | null>(null);
+  const [isAddingSlide, setIsAddingSlide] = useState(false);
+  const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
+  const [isAddingCollectionSlide, setIsAddingCollectionSlide] = useState(false);
+  const [editingCollectionSlide, setEditingCollectionSlide] = useState<CollectionSlide | null>(null);
   
   const isFirebaseAuthorized = !!auth.currentUser;
 
@@ -1897,6 +2247,19 @@ const AdminDashboard = ({
     heroImageUrl: '',
     content: '',
     sections: []
+  });
+
+  const [newSlide, setNewSlide] = useState<Partial<HeroSlide>>({
+    imageUrl: '',
+    order: 0
+  });
+
+  const [newCollectionSlide, setNewCollectionSlide] = useState<Partial<CollectionSlide>>({
+    collectionName: '',
+    title: '',
+    description: '',
+    imageUrl: '',
+    order: 0
   });
 
   const handleAddProduct = async (e: React.FormEvent) => {
@@ -2008,6 +2371,52 @@ const AdminDashboard = ({
     }
   };
 
+  const handleAddSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingSlide) {
+        const { id, ...slideData } = newSlide;
+        await updateDoc(doc(db, 'hero_slides', editingSlide.id!), {
+          ...slideData
+        });
+        setEditingSlide(null);
+      } else {
+        const { id, ...slideData } = newSlide;
+        await addDoc(collection(db, 'hero_slides'), {
+          ...slideData,
+          createdAt: new Date().toISOString()
+        });
+      }
+      setIsAddingSlide(false);
+      setNewSlide({ imageUrl: '', order: 0 });
+    } catch (err) {
+      handleFirestoreError(err, editingSlide ? OperationType.UPDATE : OperationType.CREATE, 'hero_slides');
+    }
+  };
+
+  const handleAddCollectionSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingCollectionSlide) {
+        const { id, ...slideData } = newCollectionSlide;
+        await updateDoc(doc(db, 'collection_slides', editingCollectionSlide.id!), {
+          ...slideData
+        });
+        setEditingCollectionSlide(null);
+      } else {
+        const { id, ...slideData } = newCollectionSlide;
+        await addDoc(collection(db, 'collection_slides'), {
+          ...slideData,
+          createdAt: new Date().toISOString()
+        });
+      }
+      setIsAddingCollectionSlide(false);
+      setNewCollectionSlide({ collectionName: '', title: '', description: '', imageUrl: '', order: 0 });
+    } catch (err) {
+      handleFirestoreError(err, editingCollectionSlide ? OperationType.UPDATE : OperationType.CREATE, 'collection_slides');
+    }
+  };
+
   const handleAddPage = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -2064,6 +2473,14 @@ const AdminDashboard = ({
     }
   };
 
+  const handleDeleteCollectionSlide = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, 'collection_slides', id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, `collection_slides/${id}`);
+    }
+  };
+
   const handleDeletePage = async (id: string) => {
     try {
       await deleteDoc(doc(db, 'page_content', id));
@@ -2100,6 +2517,18 @@ const AdminDashboard = ({
     setEditingPage(page);
     setNewPage(page);
     setIsAddingPage(true);
+  };
+
+  const handleEditSlide = (slide: HeroSlide) => {
+    setEditingSlide(slide);
+    setNewSlide(slide);
+    setIsAddingSlide(true);
+  };
+
+  const handleEditCollectionSlide = (slide: CollectionSlide) => {
+    setEditingCollectionSlide(slide);
+    setNewCollectionSlide(slide);
+    setIsAddingCollectionSlide(true);
   };
 
   const handleUpdateOrderStatus = async (id: string, status: Order['status']) => {
@@ -2157,6 +2586,18 @@ const AdminDashboard = ({
                 className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'categories' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
               >
                 Categories
+              </button>
+              <button 
+                onClick={() => setActiveTab('slides')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'slides' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Slides
+              </button>
+              <button 
+                onClick={() => setActiveTab('collection_slides')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'collection_slides' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Collection Slides
               </button>
               <button 
                 onClick={() => setActiveTab('pages')}
@@ -2397,6 +2838,115 @@ const AdminDashboard = ({
                   <p className="text-xs text-kael-purple italic">"{test.content}"</p>
                 </div>
               ))}
+            </div>
+          </div>
+        ) : activeTab === 'slides' ? (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold">Hero Slider Management</h2>
+              <button 
+                onClick={() => {
+                  setEditingSlide(null);
+                  setNewSlide({ imageUrl: '', order: (heroSlides.length + 1) * 10 });
+                  setIsAddingSlide(true);
+                }}
+                className="btn-luxury bg-kael-gold text-white border-none flex items-center"
+              >
+                <Plus size={16} className="mr-2" /> New Slider Image
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {heroSlides.map((slide) => (
+                <div key={slide.id} className="bg-white p-6 shadow-sm border border-kael-gold/5 flex flex-col">
+                  <div className="aspect-video bg-kael-paper mb-4 overflow-hidden">
+                    <img src={slide.imageUrl} alt="Slider" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Order: {slide.order}</span>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleEditSlide(slide)}
+                        className="text-kael-purple hover:text-kael-gold transition-colors"
+                      >
+                        <Settings size={18} />
+                      </button>
+                      <button 
+                        onClick={async () => {
+                          if (confirm('Are you sure you want to delete this slide?')) {
+                            try {
+                              await deleteDoc(doc(db, 'hero_slides', slide.id!));
+                            } catch (err) {
+                              handleFirestoreError(err, OperationType.DELETE, `hero_slides/${slide.id}`);
+                            }
+                          }
+                        }}
+                        className="text-kael-purple hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {heroSlides.length === 0 && (
+                <div className="col-span-full py-20 text-center bg-white border border-dashed border-kael-gold/30">
+                  <p className="text-kael-purple text-sm italic">No custom slides added. Using default images.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : activeTab === 'collection_slides' ? (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold">Collection Showcase Management</h2>
+              <button 
+                onClick={() => {
+                  setEditingCollectionSlide(null);
+                  setNewCollectionSlide({ collectionName: '', title: '', description: '', imageUrl: '', order: (collectionSlides.length + 1) * 10 });
+                  setIsAddingCollectionSlide(true);
+                }}
+                className="btn-luxury bg-kael-gold text-white border-none flex items-center"
+              >
+                <Plus size={16} className="mr-2" /> New Collection Slide
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {collectionSlides.map((slide) => (
+                <div key={slide.id} className="bg-white p-6 shadow-sm border border-kael-gold/5 flex flex-col">
+                  <div className="aspect-video bg-kael-paper mb-4 overflow-hidden">
+                    <img src={slide.imageUrl} alt={slide.title} className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+                  </div>
+                  <div className="flex-grow">
+                    <span className="text-[10px] uppercase text-kael-gold font-bold">{slide.collectionName}</span>
+                    <h3 className="font-bold text-sm mt-1">{slide.title}</h3>
+                    <p className="text-xs text-kael-purple mt-2 line-clamp-2 italic">"{slide.description}"</p>
+                  </div>
+                  <div className="flex justify-between items-center mt-6 pt-4 border-t border-kael-gold/10">
+                    <span className="text-[10px] uppercase tracking-widest font-bold">Order: {slide.order}</span>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => handleEditCollectionSlide(slide)}
+                        className="text-kael-purple hover:text-kael-gold transition-colors"
+                      >
+                        <Settings size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteCollectionSlide(slide.id!)}
+                        className="text-kael-purple hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {collectionSlides.length === 0 && (
+                <div className="col-span-full py-20 text-center bg-white border border-dashed border-kael-gold/30">
+                  <p className="text-kael-purple text-sm italic">No custom collection slides added. Using default showcase.</p>
+                </div>
+              )}
             </div>
           </div>
         ) : (
@@ -2845,6 +3395,131 @@ const AdminDashboard = ({
         )}
       </AnimatePresence>
 
+      {/* Hero Slide Modal */}
+      <AnimatePresence>
+        {isAddingSlide && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-kael-ink/50 backdrop-blur-sm flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white max-w-md w-full p-10 shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold">{editingSlide ? 'Edit Hero Slide' : 'Add New Hero Slide'}</h2>
+                <button onClick={() => { setIsAddingSlide(false); setEditingSlide(null); setNewSlide({ imageUrl: '', order: 0 }); }}><X size={24} /></button>
+              </div>
+
+              <form onSubmit={handleAddSlide} className="space-y-6">
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Image URL</label>
+                  <input 
+                    type="text" required
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newSlide.imageUrl || ''}
+                    onChange={(e) => setNewSlide({...newSlide, imageUrl: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Display Order (Lower is first)</label>
+                  <input 
+                    type="number"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newSlide.order || 0}
+                    onChange={(e) => setNewSlide({...newSlide, order: parseInt(e.target.value)})}
+                  />
+                </div>
+                <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
+                  {editingSlide ? 'Update Slide' : 'Create Slide'}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Collection Slide Modal */}
+      <AnimatePresence>
+        {isAddingCollectionSlide && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-kael-ink/50 backdrop-blur-sm flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white max-w-lg w-full p-10 shadow-2xl"
+            >
+              <div className="flex justify-between items-center mb-8">
+                <h2 className="text-xl font-bold">{editingCollectionSlide ? 'Edit Collection Slide' : 'Add New Collection Slide'}</h2>
+                <button onClick={() => { setIsAddingCollectionSlide(false); setEditingCollectionSlide(null); setNewCollectionSlide({ collectionName: '', title: '', description: '', imageUrl: '', order: 0 }); }}><X size={24} /></button>
+              </div>
+
+              <form onSubmit={handleAddCollectionSlide} className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Collection Label</label>
+                    <input 
+                      type="text" required placeholder="e.g. Collection 01"
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                      value={newCollectionSlide.collectionName || ''}
+                      onChange={(e) => setNewCollectionSlide({...newCollectionSlide, collectionName: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Display Order</label>
+                    <input 
+                      type="number"
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                      value={newCollectionSlide.order || 0}
+                      onChange={(e) => setNewCollectionSlide({...newCollectionSlide, order: parseInt(e.target.value)})}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Title</label>
+                  <input 
+                    type="text" required placeholder="e.g. Beyond the Sea"
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newCollectionSlide.title || ''}
+                    onChange={(e) => setNewCollectionSlide({...newCollectionSlide, title: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Description / Quote</label>
+                  <textarea 
+                    rows={4} required
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newCollectionSlide.description || ''}
+                    onChange={(e) => setNewCollectionSlide({...newCollectionSlide, description: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Image URL</label>
+                  <input 
+                    type="text" required
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={newCollectionSlide.imageUrl || ''}
+                    onChange={(e) => setNewCollectionSlide({...newCollectionSlide, imageUrl: e.target.value})}
+                  />
+                </div>
+                <button type="submit" className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold">
+                  {editingCollectionSlide ? 'Update Showcase Slide' : 'Create Showcase Slide'}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Page Content Modal */}
       <AnimatePresence>
         {isAddingPage && (
@@ -3094,6 +3769,8 @@ export default function App() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [pageContents, setPageContents] = useState<PageContent[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
+  const [collectionSlides, setCollectionSlides] = useState<CollectionSlide[]>([]);
 
   useEffect(() => {
     const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
@@ -3116,7 +3793,15 @@ export default function App() {
       setPageContents(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as PageContent)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'page_content'));
 
-    return () => { unsubProducts(); unsubCategories(); unsubCollections(); unsubTestimonials(); unsubPageContent(); };
+    const unsubHeroSlides = onSnapshot(query(collection(db, 'hero_slides'), orderBy('order', 'asc')), (snapshot) => {
+      setHeroSlides(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HeroSlide)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'hero_slides'));
+
+    const unsubCollectionSlides = onSnapshot(query(collection(db, 'collection_slides'), orderBy('order', 'asc')), (snapshot) => {
+      setCollectionSlides(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CollectionSlide)));
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'collection_slides'));
+
+    return () => { unsubProducts(); unsubCategories(); unsubCollections(); unsubTestimonials(); unsubPageContent(); unsubHeroSlides(); unsubCollectionSlides(); };
   }, []);
 
   useEffect(() => {
@@ -3225,11 +3910,11 @@ export default function App() {
     localStorage.setItem('kael-cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, size?: string) => {
     setCart(prev => {
-      const existing = prev.find(item => item.productId === product.id);
+      const existing = prev.find(item => item.productId === product.id && item.size === size);
       if (existing) {
-        return prev.map(item => item.productId === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+        return prev.map(item => (item.productId === product.id && item.size === size) ? { ...item, quantity: item.quantity + 1 } : item);
       }
       return [...prev, { 
         productId: product.id!, 
@@ -3237,32 +3922,33 @@ export default function App() {
         price: product.price, 
         quantity: 1, 
         imageUrls: product.imageUrls,
-        sku: product.sku
+        sku: product.sku,
+        size: size
       }];
     });
     setPage('cart');
   };
 
-  const updateQuantity = (id: string, q: number) => {
+  const updateQuantity = (id: string, q: number, size?: string) => {
     if (q < 1) return;
-    setCart(prev => prev.map(item => item.productId === id ? { ...item, quantity: q } : item));
+    setCart(prev => prev.map(item => (item.productId === id && item.size === size) ? { ...item, quantity: q } : item));
   };
 
-  const removeFromCart = (id: string) => {
-    setCart(prev => prev.filter(item => item.productId !== id));
+  const removeFromCart = (id: string, size?: string) => {
+    setCart(prev => prev.filter(item => !(item.productId === id && item.size === size)));
   };
 
   // Simple routing
   const renderPage = () => {
     switch (page) {
-      case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} userActivity={userActivity} trackView={trackView} />;
+      case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} />;
       case 'about': return <About pageContents={pageContents} />;
       case 'craft': return <Craft pageContents={pageContents} />;
       case 'contact': return <Contact pageContents={pageContents} />;
-      case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} userActivity={userActivity} trackView={trackView} />;
+      case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} />;
       case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} />;
       case 'login': return <LoginPage onLogin={(dest) => setPage(dest || (effectiveIsAdmin ? 'admin' : 'home'))} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} /> : <LoginPage onLogin={(dest) => setPage(dest || 'admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
+      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} heroSlides={heroSlides} collectionSlides={collectionSlides} /> : <LoginPage onLogin={(dest) => setPage(dest || 'admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
       case 'collections': return <Collections products={products} categories={categories} collections={collections} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} />;
       default: return (
         <div className="pt-48 pb-32 px-6 text-center">

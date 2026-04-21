@@ -32,6 +32,7 @@ export interface OrderItem {
   quantity: number;
   imageUrls: string[];
   sku?: string;
+  size?: string;
 }
 
 export interface Order {
@@ -90,6 +91,23 @@ export interface PageContent {
     imagePosition?: 'left' | 'right';
   }[];
   updatedAt: string;
+}
+
+export interface HeroSlide {
+  id?: string;
+  imageUrl: string;
+  order?: number;
+  createdAt: string;
+}
+
+export interface CollectionSlide {
+  id?: string;
+  collectionName: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  order: number;
+  createdAt: string;
 }
 
 export type Page = 'home' | 'collections' | 'craft' | 'about' | 'contact' | 'cart' | 'product' | 'admin' | 'login';
