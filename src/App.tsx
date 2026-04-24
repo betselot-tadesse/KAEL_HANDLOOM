@@ -334,9 +334,9 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
         <div>
           <h4 className="text-xs uppercase tracking-widest font-bold mb-6">Contact</h4>
           <ul className="space-y-4 text-xs text-kael-purple leading-relaxed">
-            <li>UAE</li>
+            <li>UAE, Dubai</li>
             <li>
-              <a href="mailto:info@rozanakitchen.com" className="hover:text-kael-gold transition-colors">info@rozanakitchen.com</a>
+              <a href="mailto:info@kaelshop.com" className="hover:text-kael-gold transition-colors">info@kaelshop.com</a>
             </li>
             <li>
               <a href="https://wa.me/971569728661" target="_blank" rel="noopener noreferrer" className="hover:text-kael-gold transition-colors flex items-center space-x-2">
@@ -476,7 +476,7 @@ const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) => {
     {
       customerName: "S. Al Mansoori",
       content: "I’ve never worn something that feels this considered. You can sense the time and care in every detail. It’s quiet, but powerful.",
-      location: "UAE",
+      location: "UAE, Dubai",
       avatarUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=200",
       rating: 5,
       createdAt: new Date().toISOString()
@@ -492,7 +492,7 @@ const Testimonials = ({ testimonials }: { testimonials: Testimonial[] }) => {
     {
       customerName: "A. Menon",
       content: "KAEL doesn’t try to stand out loudly — and that’s exactly why it does. It feels refined, effortless, and deeply personal.",
-      location: "UAE",
+      location: "UAE, Dubai",
       avatarUrl: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&q=80&w=200",
       rating: 5,
       createdAt: new Date().toISOString()
@@ -1201,8 +1201,8 @@ For bespoke requests, collection inquiries, or to visit us, please reach out via
               {!content?.sections?.length && (
                 <div className="space-y-4 text-sm">
                   <p><strong>WhatsApp:</strong> +971 569728661</p>
-                  <p><strong>Email:</strong> info@rozanakitchen.com</p>
-                  <p><strong>Location:</strong> Dubai, UAE</p>
+                  <p><strong>Email:</strong> info@kaelshop.com</p>
+                  <p><strong>Location:</strong> UAE, Dubai</p>
                 </div>
               )}
             </div>
@@ -3507,7 +3507,7 @@ const AdminDashboard = ({
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Location (e.g. Dubai, UAE)</label>
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Location (e.g. UAE, Dubai)</label>
                   <input 
                     type="text"
                     className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
