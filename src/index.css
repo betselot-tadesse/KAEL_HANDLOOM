@@ -7,8 +7,8 @@
   --color-kael-gold: #AE997C;
   --color-kael-purple: #756876;
   --color-kael-accent: #CE984B;
-  --color-kael-brown: #B46018;
-  --color-kael-dark: #6D521B;
+  --color-kael-brown: #4E3621;
+  --color-kael-dark: #3D2B1A;
   --color-kael-paper: #F9F7F2;
   --color-kael-ink: #1A1A1A;
 }
@@ -18,12 +18,8 @@
     @apply bg-kael-paper text-kael-ink font-sans antialiased;
   }
 
-  h1 {
-    @apply font-bold uppercase tracking-widest;
-  }
-
-  h2 {
-    @apply font-semibold uppercase tracking-wider;
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-kael-brown font-bold uppercase tracking-widest;
   }
 }
 

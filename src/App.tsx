@@ -327,7 +327,6 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
             <li className="hover:text-kael-gold cursor-pointer" onClick={() => setPage('about')}>About</li>
             <li className="hover:text-kael-gold cursor-pointer" onClick={() => setPage('collections')}>Collections</li>
             <li className="hover:text-kael-gold cursor-pointer" onClick={() => setPage('craft')}>Craft</li>
-            <li className="hover:text-kael-gold cursor-pointer" onClick={() => setPage('contact')}>Contact</li>
             <li className="hover:text-kael-gold cursor-pointer" onClick={() => setPage('login')}>Login</li>
           </ul>
         </div>
@@ -336,8 +335,15 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
           <h4 className="text-xs uppercase tracking-widest font-bold mb-6">Contact</h4>
           <ul className="space-y-4 text-xs text-kael-purple leading-relaxed">
             <li>UAE</li>
-            <li>info@rozanakitchen.com</li>
-            <li>+971569728661</li>
+            <li>
+              <a href="mailto:info@rozanakitchen.com" className="hover:text-kael-gold transition-colors">info@rozanakitchen.com</a>
+            </li>
+            <li>
+              <a href="https://wa.me/971569728661" target="_blank" rel="noopener noreferrer" className="hover:text-kael-gold transition-colors flex items-center space-x-2">
+                <MessageCircle size={14} className="text-green-600" />
+                <span>+971 56 972 8661</span>
+              </a>
+            </li>
           </ul>
         </div>
       </div>
@@ -355,7 +361,12 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
 
 // --- Components ---
 
-const ProductCard = ({ product, hasData, onClick }: { product: Product, hasData: boolean, onClick: () => void }) => {
+const ProductCard = ({ product, hasData, onClick, addToCart }: { 
+  product: Product, 
+  hasData: boolean, 
+  onClick: () => void,
+  addToCart: (p: Product) => void
+}) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const nextImage = (e: React.MouseEvent) => {
@@ -371,59 +382,89 @@ const ProductCard = ({ product, hasData, onClick }: { product: Product, hasData:
   return (
     <motion.div 
       className="group cursor-pointer transition-all duration-500"
-      whileHover={{ y: -10 }}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
       onClick={onClick}
-      onMouseLeave={() => setCurrentImageIndex(0)}
     >
-      <div className="relative aspect-[3/4] overflow-hidden mb-6 shadow-sm group-hover:shadow-xl transition-shadow duration-500">
+      <div className="relative aspect-[3/4] overflow-hidden mb-4 shadow-sm group-hover:shadow-lg transition-all duration-500 bg-white">
         <img 
           src={product.imageUrls[currentImageIndex]} 
           alt={product.name}
-          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+          className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-105"
           referrerPolicy="no-referrer"
         />
+        
+        {/* Quick Add Button Overlay */}
+        <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 z-30">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(product);
+            }}
+            className="w-full bg-kael-ink text-white py-3 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-kael-brown transition-colors"
+          >
+            Add to Bag
+          </button>
+        </div>
+
         {!hasData && (
-          <div className="absolute top-4 left-4 bg-kael-gold text-white text-[8px] uppercase tracking-widest px-2 py-1 z-10">
-            Sample Preview
+          <div className="absolute top-3 left-3 bg-kael-brown text-white text-[7px] uppercase tracking-widest px-2 py-0.5 z-10">
+            Sample
           </div>
         )}
-        <div className="absolute inset-0 bg-kael-ink/0 group-hover:bg-kael-ink/10 transition-colors duration-500" />
         
-        {/* Manual Navigation Arrows */}
+        <div className="absolute inset-0 bg-kael-ink/0 group-hover:bg-kael-ink/5 transition-colors duration-500" />
+        
+        {/* Navigation Arrows (Desktop Only Hover) */}
         {product.imageUrls.length > 1 && (
-          <>
+          <div className="hidden md:block">
             <button 
               onClick={prevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-kael-ink opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 hover:bg-white"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-kael-ink opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 hover:bg-white"
             >
-              <ChevronLeft size={16} />
+              <ChevronLeft size={12} />
             </button>
             <button 
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center text-kael-ink opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 hover:bg-white"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-kael-ink opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20 hover:bg-white"
             >
-              <ChevronRight size={16} />
+              <ChevronRight size={12} />
             </button>
-          </>
-        )}
-
-        {/* Angle Indicator */}
-        {product.imageUrls.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-1">
-            {product.imageUrls.map((_, idx) => (
-              <div 
-                key={idx}
-                className={cn(
-                  "w-1.5 h-1.5 rounded-full transition-all duration-300",
-                  currentImageIndex === idx ? "bg-white w-3" : "bg-white/40"
-                )}
-              />
-            ))}
           </div>
         )}
       </div>
-      <h3 className="text-xl font-bold mb-2 group-hover:text-kael-gold transition-colors">{product.name}</h3>
-      <p className="text-kael-gold font-medium">AED {product.price.toLocaleString()}</p>
+      
+      {/* Thumbnails of secondary images */}
+      {product.imageUrls.length > 1 && (
+        <div className="flex space-x-1.5 mb-3 overflow-x-auto no-scrollbar">
+          {product.imageUrls.map((url, idx) => (
+            <div 
+              key={idx}
+              className={cn(
+                "w-8 h-8 flex-shrink-0 border transition-all duration-300 cursor-pointer overflow-hidden",
+                currentImageIndex === idx ? "border-kael-gold ring-1 ring-kael-gold" : "border-kael-gold/10 opacity-70 hover:opacity-100"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                setCurrentImageIndex(idx);
+              }}
+            >
+              <img 
+                src={url} 
+                alt={`${product.name} detail ${idx + 1}`} 
+                className="w-full h-full object-cover object-top"
+                referrerPolicy="no-referrer"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="space-y-1">
+        <h3 className="text-xs font-bold tracking-tight line-clamp-1 group-hover:text-kael-brown transition-colors uppercase">{product.name}</h3>
+        <p className="text-kael-brown font-medium text-[11px]">AED {product.price.toLocaleString()}</p>
+      </div>
     </motion.div>
   );
 };
@@ -516,7 +557,8 @@ const Home = ({
   heroSlides,
   collectionSlides,
   userActivity,
-  trackView
+  trackView,
+  addToCart
 }: { 
   setPage: (p: Page) => void, 
   setSelectedProduct: (p: Product) => void,
@@ -525,7 +567,8 @@ const Home = ({
   heroSlides: HeroSlide[],
   collectionSlides: CollectionSlide[],
   userActivity: UserActivity | null,
-  trackView: (type: 'product' | 'collection', id: string, category?: string) => void
+  trackView: (type: 'product' | 'collection', id: string, category?: string) => void,
+  addToCart: (product: Product, size?: string) => void
 }) => {
   const [currentHeroImage, setCurrentHeroImage] = useState(0);
   const [currentCollectionSlide, setCurrentCollectionSlide] = useState(0);
@@ -670,12 +713,13 @@ const Home = ({
             </button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
             {featuredProducts.length > 0 ? featuredProducts.map((product) => (
               <ProductCard 
                 key={product.id} 
                 product={product} 
                 hasData={true}
+                addToCart={addToCart}
                 onClick={() => {
                   setSelectedProduct(product);
                   setPage('product');
@@ -769,16 +813,32 @@ const Home = ({
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {[
+              { name: 'Modest', fallback: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&q=80&w=800' },
               { name: 'Mens Wear', fallback: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&q=80&w=800' },
-              { name: 'Womens Wear', fallback: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800' },
-              { name: 'Modest', fallback: 'https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?auto=format&fit=crop&q=80&w=800' }
+              { name: 'Womens Wear', fallback: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800' }
             ].map((col) => {
-              const categoryProducts = products.filter(p => p.category === col.name);
+              // Be flexible with category matching
+              const categoryProducts = products.filter(p => 
+                p.category?.toLowerCase() === col.name.toLowerCase() || 
+                p.category?.toLowerCase().includes(col.name.toLowerCase())
+              );
+              
               const sortedProducts = [...categoryProducts].sort((a, b) => 
                 new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
               );
-              const firstProduct = sortedProducts[0];
-              const img = firstProduct?.imageUrls[0] || col.fallback;
+              
+              // If no products in this category, try getting the most recent products overall 
+              // as a fallback if this is the Modest collection and it is currently empty
+              let img = (sortedProducts.length > 0 && sortedProducts[0].imageUrls[0]) || null;
+              
+              if (!img && col.name === 'Modest' && products.length > 0) {
+                const latestOverall = [...products].sort((a,b) => 
+                  new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+                )[0];
+                img = latestOverall.imageUrls[0];
+              }
+
+              img = img || col.fallback;
               return (
                 <div 
                   key={col.name} 
@@ -786,9 +846,9 @@ const Home = ({
                   onClick={() => setPage('collections')}
                 >
                   <img src={img} alt={col.name} className="w-full h-full object-cover object-top transition-transform duration-1000 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500 flex flex-col items-center justify-center text-white">
-                    <h3 className="text-2xl font-bold uppercase tracking-widest">{col.name}</h3>
-                    <span className="mt-4 text-[10px] uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-opacity duration-500">View Collection</span>
+                  <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors duration-500 flex flex-col items-center justify-center text-white px-6 text-center">
+                    <h3 className="text-2xl font-bold uppercase tracking-[0.2em] text-white drop-shadow-lg">{col.name}</h3>
+                    <span className="mt-4 text-[10px] uppercase tracking-[0.3em] opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">View Collection</span>
                   </div>
                 </div>
               );
@@ -1426,13 +1486,37 @@ const SizeChartModal = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => v
 };
 
 const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Product, setPage: (p: Page) => void, addToCart: (p: Product, size?: string) => void, trackView: (type: 'product' | 'collection', id: string, category?: string) => void }) => {
-  const [selectedImage, setSelectedImage] = useState(product.imageUrls[0]);
+  const [[page, direction], setPageIdx] = useState([0, 0]);
   const [isSizeChartOpen, setIsSizeChartOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | undefined>(product.sizes && product.sizes.length > 0 ? product.sizes[0] : undefined);
+
+  const paginate = (newDirection: number) => {
+    const newIdx = (page + newDirection + product.imageUrls.length) % product.imageUrls.length;
+    setPageIdx([newIdx, newDirection]);
+  };
+
+  const selectedImage = product.imageUrls[page];
 
   useEffect(() => {
     trackView('product', product.id!, product.category);
   }, [product.id]);
+
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 500 : -500,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 500 : -500,
+      opacity: 0
+    })
+  };
 
   return (
     <motion.div 
@@ -1449,8 +1533,59 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-24">
         {/* Left: Gallery */}
         <div className="space-y-6">
-          <div className="aspect-[3/4] bg-white overflow-hidden">
-            <img src={selectedImage} alt={product.name} className="w-full h-full object-cover object-top" referrerPolicy="no-referrer" />
+          <div className="relative aspect-[3/4] bg-white overflow-hidden group">
+            <AnimatePresence initial={false} custom={direction} mode="popLayout">
+              <motion.img 
+                key={page}
+                src={selectedImage} 
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
+                drag="x"
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={1}
+                onDragEnd={(e, { offset, velocity }) => {
+                  const swipe = offset.x * velocity.x;
+                  if (swipe < -10000) {
+                    paginate(1);
+                  } else if (swipe > 10000) {
+                    paginate(-1);
+                  }
+                }}
+                className="w-full h-full object-cover object-top" 
+                referrerPolicy="no-referrer" 
+              />
+            </AnimatePresence>
+            
+            {/* Navigation Arrows */}
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                paginate(-1);
+              }}
+              className="absolute inset-y-0 left-0 w-12 flex items-center justify-center md:opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              <div className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-kael-ink shadow-sm hover:bg-white transition-colors">
+                <ChevronLeft size={16} />
+              </div>
+            </button>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                paginate(1);
+              }}
+              className="absolute inset-y-0 right-0 w-12 flex items-center justify-center md:opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              <div className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-kael-ink shadow-sm hover:bg-white transition-colors">
+                <ChevronRight size={16} />
+              </div>
+            </button>
           </div>
           <div className="grid grid-cols-5 gap-4">
             {product.imageUrls.map((url, idx) => (
@@ -1458,9 +1593,9 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
                 key={idx} 
                 className={cn(
                   "aspect-square bg-white overflow-hidden cursor-pointer border-2 transition-all",
-                  selectedImage === url ? "border-kael-gold" : "border-transparent opacity-60 hover:opacity-100"
+                  page === idx ? "border-kael-brown" : "border-transparent opacity-60 hover:opacity-100"
                 )}
-                onClick={() => setSelectedImage(url)}
+                onClick={() => setPageIdx([idx, idx > page ? 1 : -1])}
               >
                 <img src={url} alt={`${product.name} angle ${idx + 1}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
               </div>
@@ -1897,7 +2032,8 @@ const Collections = ({
   setPage, 
   setSelectedProduct,
   searchQuery,
-  pageContents
+  pageContents,
+  addToCart
 }: { 
   products: Product[], 
   categories: Category[], 
@@ -1905,7 +2041,8 @@ const Collections = ({
   setPage: (p: Page) => void, 
   setSelectedProduct: (p: Product) => void,
   searchQuery: string,
-  pageContents: PageContent[]
+  pageContents: PageContent[],
+  addToCart: (product: Product, size?: string) => void
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [selectedCollection, setSelectedCollection] = useState<string>('All');
@@ -2121,12 +2258,13 @@ const Collections = ({
                             {categoryProducts.length} {hasData ? 'Pieces' : 'Sample Pieces'}
                           </span>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-8">
                           {categoryProducts.map(product => (
                             <ProductCard 
                               key={product.id} 
                               product={product} 
                               hasData={hasData}
+                              addToCart={addToCart}
                               onClick={() => {
                                 if (hasData) {
                                   setSelectedProduct(product);
@@ -3701,13 +3839,15 @@ const PersonalizedFeed = ({
   products, 
   setPage, 
   setSelectedProduct,
-  trackView
+  trackView,
+  addToCart
 }: { 
   userActivity: UserActivity | null, 
   products: Product[], 
   setPage: (p: Page) => void,
   setSelectedProduct: (p: Product) => void,
-  trackView: (type: 'product' | 'collection', id: string, category?: string) => void
+  trackView: (type: 'product' | 'collection', id: string, category?: string) => void,
+  addToCart: (product: Product, size?: string) => void
 }) => {
   if (!userActivity || userActivity.viewedProductIds.length === 0) {
     return null;
@@ -3732,12 +3872,13 @@ const PersonalizedFeed = ({
         {recommendedProducts.length > 0 && (
           <div className="mb-16">
             <h3 className="text-sm uppercase tracking-widest font-bold mb-8 text-kael-gold">Recommended Masterpieces</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-8">
               {recommendedProducts.map(product => (
                 <ProductCard 
                   key={product.id} 
                   product={product} 
                   hasData={true}
+                  addToCart={addToCart}
                   onClick={() => {
                     setSelectedProduct(product);
                     setPage('product');
@@ -3941,15 +4082,15 @@ export default function App() {
   // Simple routing
   const renderPage = () => {
     switch (page) {
-      case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} />;
+      case 'home': return <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} addToCart={addToCart} />;
       case 'about': return <About pageContents={pageContents} />;
       case 'craft': return <Craft pageContents={pageContents} />;
       case 'contact': return <Contact pageContents={pageContents} />;
-      case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} />;
+      case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} addToCart={addToCart} />;
       case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} />;
       case 'login': return <LoginPage onLogin={(dest) => setPage(dest || (effectiveIsAdmin ? 'admin' : 'home'))} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
       case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} heroSlides={heroSlides} collectionSlides={collectionSlides} /> : <LoginPage onLogin={(dest) => setPage(dest || 'admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'collections': return <Collections products={products} categories={categories} collections={collections} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} />;
+      case 'collections': return <Collections products={products} categories={categories} collections={collections} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} addToCart={addToCart} />;
       default: return (
         <div className="pt-48 pb-32 px-6 text-center">
           <span className="micro-label">{page}</span>
