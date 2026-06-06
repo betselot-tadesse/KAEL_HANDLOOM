@@ -10,6 +10,8 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  offerPrice?: number;
+  offerPercentage?: number;
   imageUrls: string[];
   category: string;
   collection?: string;
@@ -29,6 +31,8 @@ export interface OrderItem {
   productId: string;
   name: string;
   price: number;
+  offerPrice?: number;
+  offerPercentage?: number;
   quantity: number;
   imageUrls: string[];
   sku?: string;

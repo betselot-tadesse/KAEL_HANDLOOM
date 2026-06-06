@@ -7,7 +7,8 @@ import {
   ChevronLeft,
   Search,
   Instagram, 
-  Facebook, 
+  Facebook,
+  Linkedin,
   Plus, 
   Trash2, 
   LogOut, 
@@ -317,7 +318,28 @@ const Footer = ({ setPage }: { setPage: (p: Page) => void }) => {
             <a href="https://www.instagram.com/kael_handloom" target="_blank" rel="noopener noreferrer">
               <Instagram size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
             </a>
-            <Facebook size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
+            <a href="https://www.facebook.com/profile.php?id=61590213639618" target="_blank" rel="noopener noreferrer">
+              <Facebook size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
+            </a>
+            <a href="https://www.linkedin.com/company/kael-handloom/?viewAsMember=true" target="_blank" rel="noopener noreferrer">
+              <Linkedin size={18} className="text-kael-ink hover:text-kael-gold cursor-pointer" />
+            </a>
+            <a href="https://www.tiktok.com/@kael71508?_r=1&_t=ZS-96uekJ4gpHE" target="_blank" rel="noopener noreferrer">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="text-kael-ink hover:text-kael-gold cursor-pointer"
+              >
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
+              </svg>
+            </a>
           </div>
         </div>
         
@@ -388,6 +410,11 @@ const ProductCard = ({ product, hasData, onClick, addToCart }: {
       onClick={onClick}
     >
       <div className="relative aspect-[3/4] overflow-hidden mb-4 shadow-sm group-hover:shadow-lg transition-all duration-500 bg-white">
+        {product.offerPercentage && (
+          <div className="absolute top-3 right-3 bg-[#4E3621] text-white text-[10px] font-bold px-2 py-1 z-10 shadow-sm">
+            -{product.offerPercentage}%
+          </div>
+        )}
         <img 
           src={product.imageUrls[currentImageIndex]} 
           alt={product.name}
@@ -463,7 +490,14 @@ const ProductCard = ({ product, hasData, onClick, addToCart }: {
 
       <div className="space-y-1">
         <h3 className="text-xs font-bold tracking-tight line-clamp-1 group-hover:text-kael-brown transition-colors uppercase">{product.name}</h3>
-        <p className="text-kael-brown font-medium text-[11px]">AED {product.price.toLocaleString()}</p>
+        {(product.offerPrice || product.offerPercentage) ? (
+          <div className="flex items-center space-x-2 text-[11px]">
+            <span className="text-kael-purple line-through">AED {product.price.toLocaleString()}</span>
+            <span className="text-kael-brown font-bold">AED {(product.offerPercentage ? product.price * (1 - product.offerPercentage / 100) : product.offerPrice!).toLocaleString()}</span>
+          </div>
+        ) : (
+          <p className="text-kael-brown font-medium text-[11px]">AED {product.price.toLocaleString()}</p>
+        )}
       </div>
     </motion.div>
   );
@@ -970,7 +1004,7 @@ const About = ({ pageContents }: { pageContents: PageContent[] }) => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.8, duration: 1 }}
-            className="text-6xl md:text-9xl font-bold tracking-tighter serif-display leading-none"
+            className="text-6xl md:text-9xl font-bold tracking-tighter text-[#8B6A4F] serif-display leading-none"
           >
             Meaningful<br/>Elegance
           </motion.h1>
@@ -1611,7 +1645,14 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
           </div>
           <h1 className="text-4xl font-bold mt-2 mb-2 tracking-tight">{product.name}</h1>
           {product.tagline && <p className="text-sm italic text-kael-purple mb-4">"{product.tagline}"</p>}
-          <p className="text-lg font-bold text-kael-gold mb-8">AED {product.price.toLocaleString()}</p>
+          {(product.offerPrice || product.offerPercentage) ? (
+            <div className="flex items-center space-x-3 mb-8">
+              <p className="text-lg text-kael-purple line-through">AED {product.price.toLocaleString()}</p>
+              <p className="text-lg font-bold text-kael-gold">AED {(product.offerPercentage ? product.price * (1 - product.offerPercentage / 100) : product.offerPrice!).toLocaleString()}</p>
+            </div>
+          ) : (
+            <p className="text-lg font-bold text-kael-gold mb-8">AED {product.price.toLocaleString()}</p>
+          )}
           
           <div className="space-y-8 mb-12">
             <div>
@@ -1753,13 +1794,21 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
   removeFromCart: (id: string, size?: string) => void,
   setPage: (p: Page) => void
 }) => {
-  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [customerName, setCustomerName] = useState("");
 
-  const handleCheckout = () => {
+  const total = cart.reduce((acc, item) => acc + ((item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : (item.offerPrice || item.price)) * item.quantity), 0);
+
+  const handleCheckout = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerName.trim()) return;
+
     const phoneNumber = "971569728661"; // Updated WhatsApp number
-    const message = `Hello KAEL, I would like to place an order for:\n\n${cart.map(item => `- ${item.name} ${item.size ? `(Size: ${item.size})` : ''} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${(item.price * item.quantity).toLocaleString()}`).join('\n')}\n\nTotal: AED ${total.toLocaleString()}\n\nPlease let me know the next steps. Thank you!`;
+    const message = `*NEW INVOICE*\nCustomer Name: ${customerName}\n\n*ORDER DETAILS:*\n${cart.map(item => `- ${item.name} ${item.size ? `(Size: ${item.size})` : ''} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${((item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : (item.offerPrice || item.price)) * item.quantity).toLocaleString()}`).join('\n')}\n\n*Total:* AED ${total.toLocaleString()}`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+    setIsPopupOpen(false);
+    setCustomerName("");
   };
 
   return (
@@ -1786,7 +1835,16 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
               <div className="flex-grow">
                 <h3 className="text-sm font-bold uppercase tracking-wider">{item.name}</h3>
                 {item.size && <p className="text-[10px] uppercase font-bold text-kael-gold mt-1">Size: {item.size}</p>}
-                <p className="text-xs text-kael-purple mt-1 font-medium">AED {item.price.toLocaleString()}</p>
+                <div className="flex items-center space-x-2 mt-1">
+                  {(item.offerPrice || item.offerPercentage) ? (
+                    <>
+                      <p className="text-xs text-kael-purple line-through">AED {item.price.toLocaleString()}</p>
+                      <p className="text-xs text-kael-brown font-bold">AED {(item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : item.offerPrice!).toLocaleString()}</p>
+                    </>
+                  ) : (
+                    <p className="text-xs text-kael-purple font-medium">AED {item.price.toLocaleString()}</p>
+                  )}
+                </div>
                 <div className="flex items-center space-x-4 mt-4">
                   <button 
                     onClick={() => updateQuantity(item.productId, item.quantity - 1, item.size)}
@@ -1800,7 +1858,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-sm font-bold">AED {(item.price * item.quantity).toLocaleString()}</p>
+                <p className="text-sm font-bold">AED {((item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : (item.offerPrice || item.price)) * item.quantity).toLocaleString()}</p>
                 <button 
                   onClick={() => removeFromCart(item.productId, item.size)}
                   className="text-kael-purple hover:text-red-500 mt-4 transition-colors"
@@ -1826,7 +1884,7 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
                 <span>AED {total.toLocaleString()}</span>
               </div>
               <button 
-                onClick={handleCheckout}
+                onClick={() => setIsPopupOpen(true)}
                 className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold mt-8"
               >
                 Proceed to Checkout
@@ -1835,6 +1893,55 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
           </div>
         </div>
       )}
+
+      {/* Customer Name Popup */}
+      <AnimatePresence>
+        {isPopupOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-kael-ink/50 backdrop-blur-sm flex items-center justify-center p-6"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-white w-full max-w-sm p-8 shadow-2xl relative"
+            >
+              <button 
+                onClick={() => setIsPopupOpen(false)}
+                className="absolute top-4 right-4 text-kael-purple hover:text-kael-ink"
+              >
+                <X size={20} />
+              </button>
+              <h2 className="text-xl font-bold mb-6 text-center">Complete Your Order</h2>
+              <p className="text-xs text-kael-purple text-center mb-6">Please enter your name to proceed with the invoice on WhatsApp.</p>
+              
+              <form onSubmit={handleCheckout}>
+                <div className="mb-6">
+                  <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Your Name</label>
+                  <input 
+                    type="text" 
+                    required
+                    autoFocus
+                    className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <button 
+                  type="submit"
+                  className="btn-luxury w-full bg-kael-gold text-white hover:bg-kael-ink"
+                >
+                  Generate Invoice & Send
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
@@ -2344,6 +2451,8 @@ const AdminDashboard = ({
   const [newProduct, setNewProduct] = useState<Partial<Product>>({
     name: '',
     price: 0,
+    offerPrice: undefined,
+    offerPercentage: undefined,
     imageUrls: ['', '', '', '', ''],
     category: '',
     collection: 'Beyond The Sea',
@@ -2405,12 +2514,18 @@ const AdminDashboard = ({
     try {
       if (editingProduct) {
         const { id, ...productData } = newProduct;
+        // remove undefined fields
+        Object.keys(productData).forEach(key => productData[key as keyof typeof productData] === undefined && delete productData[key as keyof typeof productData]);
+        
         await updateDoc(doc(db, 'products', editingProduct.id!), {
           ...productData
         });
         setEditingProduct(null);
       } else {
         const { id, ...productData } = newProduct;
+        // remove undefined fields
+        Object.keys(productData).forEach(key => productData[key as keyof typeof productData] === undefined && delete productData[key as keyof typeof productData]);
+
         await addDoc(collection(db, 'products'), {
           ...productData,
           isFeatured: newProduct.isFeatured || false,
@@ -2421,6 +2536,8 @@ const AdminDashboard = ({
       setNewProduct({ 
         name: '', 
         price: 0, 
+        offerPrice: undefined,
+        offerPercentage: undefined,
         imageUrls: ['', '', '', '', ''], 
         category: '', 
         collection: 'Beyond The Sea',
@@ -2786,7 +2903,16 @@ const AdminDashboard = ({
                         )}
                       </div>
                       <h3 className="font-bold text-sm mt-1">{product.name}</h3>
-                      <p className="font-bold text-sm mt-2">AED {product.price.toLocaleString()}</p>
+                      <div className="mt-2 text-sm">
+                        {(product.offerPrice || product.offerPercentage) ? (
+                          <>
+                            <span className="text-kael-purple line-through mr-2">AED {product.price.toLocaleString()}</span>
+                            <span className="font-bold text-kael-gold">AED {(product.offerPercentage ? product.price * (1 - product.offerPercentage / 100) : product.offerPrice!).toLocaleString()}</span>
+                          </>
+                        ) : (
+                          <span className="font-bold">AED {product.price.toLocaleString()}</span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex space-x-2">
                       <button 
@@ -3173,6 +3299,26 @@ const AdminDashboard = ({
                       className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
                       value={newProduct.price || 0}
                       onChange={(e) => setNewProduct({...newProduct, price: Number(e.target.value)})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Offer Price (AED) - Optional</label>
+                    <input 
+                      type="number"
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                      value={newProduct.offerPrice || ''}
+                      onChange={(e) => setNewProduct({...newProduct, offerPrice: e.target.value ? Number(e.target.value) : undefined})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] uppercase tracking-widest font-bold block mb-2">Offer Percentage (%) - Optional</label>
+                    <input 
+                      type="number"
+                      max="100"
+                      min="0"
+                      className="w-full border border-kael-gold/20 p-3 text-sm focus:outline-kael-gold"
+                      value={newProduct.offerPercentage || ''}
+                      onChange={(e) => setNewProduct({...newProduct, offerPercentage: e.target.value ? Number(e.target.value) : undefined})}
                     />
                   </div>
                 </div>
@@ -4061,6 +4207,8 @@ export default function App() {
         productId: product.id!, 
         name: product.name, 
         price: product.price, 
+        offerPrice: product.offerPrice,
+        offerPercentage: product.offerPercentage,
         quantity: 1, 
         imageUrls: product.imageUrls,
         sku: product.sku,
