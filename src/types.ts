@@ -25,6 +25,7 @@ export interface Product {
   sizes?: string[];
   isFeatured?: boolean;
   createdAt: string;
+  stock?: { size: string; color: string; quantity: number }[];
 }
 
 export interface OrderItem {

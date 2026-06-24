@@ -2512,6 +2512,7 @@ const AdminDashboard = ({
     fitType: '',
     packageContent: '',
     sizes: [],
+    stock: [],
     isFeatured: false
   });
 
@@ -2597,6 +2598,7 @@ const AdminDashboard = ({
         fitType: '',
         packageContent: '',
         sizes: [],
+        stock: [],
         isFeatured: false 
       });
     } catch (err) {
@@ -2946,7 +2948,28 @@ const AdminDashboard = ({
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-bold">Product Catalog</h2>
               <button 
-                onClick={() => setIsAddingProduct(true)}
+                onClick={() => {
+                  setEditingProduct(null);
+                  setNewProduct({
+                    name: '',
+                    description: '',
+                    price: 0,
+                    imageUrls: ['', '', '', '', ''],
+                    category: '',
+                    collection: '',
+                    craftStory: '',
+                    materialDetails: '',
+                    careInstructions: '',
+                    sku: '',
+                    tagline: '',
+                    fitType: '',
+                    packageContent: '',
+                    sizes: [],
+                    stock: [],
+                    isFeatured: false
+                  });
+                  setIsAddingProduct(true);
+                }}
                 className="btn-luxury bg-kael-gold text-white border-none flex items-center"
               >
                 <Plus size={16} className="mr-2" /> Add Product
@@ -3487,6 +3510,73 @@ const AdminDashboard = ({
                     value={newProduct.sizes?.join(', ') || ''}
                     onChange={(e) => setNewProduct({...newProduct, sizes: e.target.value.split(',').map(s => s.trim()).filter(s => s !== '')})}
                   />
+                </div>
+
+                <div className="space-y-4 pt-4 border-t border-kael-gold/10">
+                  <div className="flex justify-between items-center">
+                    <label className="text-[10px] uppercase tracking-widest font-bold block">Inventory & Stock</label>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        const currentStock = newProduct.stock || [];
+                        setNewProduct({...newProduct, stock: [...currentStock, { size: '', color: '', quantity: 0 }]});
+                      }}
+                      className="text-[10px] uppercase tracking-widest font-bold text-kael-purple hover:text-kael-gold transition-colors flex items-center"
+                    >
+                      <Plus size={12} className="mr-1" /> Add Stock Entry
+                    </button>
+                  </div>
+                  {newProduct.stock && newProduct.stock.length > 0 ? (
+                    <div className="space-y-2">
+                      {newProduct.stock.map((item, idx) => (
+                        <div key={idx} className="flex gap-2 items-center bg-kael-paper p-2">
+                          <input 
+                            type="text" placeholder="Size"
+                            className="flex-1 border border-kael-gold/20 p-2 text-sm focus:outline-kael-gold bg-white"
+                            value={item.size}
+                            onChange={(e) => {
+                              const newStock = [...(newProduct.stock || [])];
+                              newStock[idx].size = e.target.value;
+                              setNewProduct({...newProduct, stock: newStock});
+                            }}
+                          />
+                          <input 
+                            type="text" placeholder="Color"
+                            className="flex-1 border border-kael-gold/20 p-2 text-sm focus:outline-kael-gold bg-white"
+                            value={item.color}
+                            onChange={(e) => {
+                              const newStock = [...(newProduct.stock || [])];
+                              newStock[idx].color = e.target.value;
+                              setNewProduct({...newProduct, stock: newStock});
+                            }}
+                          />
+                          <input 
+                            type="number" placeholder="Qty" min="0"
+                            className="w-20 border border-kael-gold/20 p-2 text-sm focus:outline-kael-gold bg-white"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const newStock = [...(newProduct.stock || [])];
+                              newStock[idx].quantity = parseInt(e.target.value) || 0;
+                              setNewProduct({...newProduct, stock: newStock});
+                            }}
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => {
+                              const newStock = [...(newProduct.stock || [])];
+                              newStock.splice(idx, 1);
+                              setNewProduct({...newProduct, stock: newStock});
+                            }}
+                            className="text-kael-purple hover:text-red-500 p-2"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-kael-purple italic">No stock inventory tracked. Product will be always available.</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -67,13 +67,13 @@ service cloud.firestore {
     }
 
     function isValidProduct(data) {
-      return hasOnlyAllowedFields(['name', 'description', 'price', 'offerPrice', 'offerPercentage', 'imageUrls', 'category', 'collection', 'craftStory', 'materialDetails', 'careInstructions', 'isFeatured', 'createdAt', 'sku', 'tagline', 'fitType', 'packageContent', 'sizes']) &&
-             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
-             data.description is string && data.description.size() < 1000 &&
+      return hasOnlyAllowedFields(['name', 'description', 'price', 'offerPrice', 'offerPercentage', 'imageUrls', 'category', 'collection', 'craftStory', 'materialDetails', 'careInstructions', 'isFeatured', 'createdAt', 'sku', 'tagline', 'fitType', 'packageContent', 'sizes', 'stock']) &&
+             data.name is string && data.name.size() > 0 &&
+             data.description is string &&
              data.price is number && data.price >= 0 &&
              (!('offerPrice' in data) || (data.offerPrice is number && data.offerPrice >= 0)) &&
              (!('offerPercentage' in data) || (data.offerPercentage is number && data.offerPercentage >= 0 && data.offerPercentage <= 100)) &&
-             data.imageUrls is list && data.imageUrls.size() <= 5 &&
+             data.imageUrls is list &&
              data.category is string &&
              (!('collection' in data) || data.collection is string) &&
              (!('craftStory' in data) || data.craftStory is string) &&
@@ -85,7 +85,8 @@ service cloud.firestore {
              (!('fitType' in data) || data.fitType is string) &&
              (!('packageContent' in data) || data.packageContent is string) &&
              (!('sizes' in data) || data.sizes is list) &&
-             data.createdAt is string;
+             (!('stock' in data) || data.stock is list) &&
+             (!('createdAt' in data) || data.createdAt is string);
     }
 
     // Products: Publicly readable, Admin can write
