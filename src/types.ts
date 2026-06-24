@@ -64,6 +64,13 @@ export interface Collection {
   createdAt?: string;
 }
 
+export interface StoreSettings {
+  id?: string;
+  isOrderNowEnabled: boolean;
+  isPreOrderEnabled: boolean;
+  updatedAt?: string;
+}
+
 export interface Testimonial {
   id?: string;
   customerName: string;

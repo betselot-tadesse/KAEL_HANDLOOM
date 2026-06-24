@@ -1788,14 +1788,25 @@ const ProductDetail = ({ product, setPage, addToCart, trackView }: { product: Pr
   );
 };
 
-const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: { 
+const Cart = ({ cart, updateQuantity, removeFromCart, setPage, storeSettings }: { 
   cart: OrderItem[], 
   updateQuantity: (id: string, q: number, size?: string) => void, 
   removeFromCart: (id: string, size?: string) => void,
-  setPage: (p: Page) => void
+  setPage: (p: Page) => void,
+  storeSettings: StoreSettings
 }) => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [customerName, setCustomerName] = useState("");
+  const [orderType, setOrderType] = useState<'order' | 'preorder'>(storeSettings.isOrderNowEnabled ? 'order' : 'preorder');
+
+  // Update orderType if settings change
+  useEffect(() => {
+    if (!storeSettings.isOrderNowEnabled && orderType === 'order') {
+      setOrderType('preorder');
+    } else if (!storeSettings.isPreOrderEnabled && orderType === 'preorder') {
+      setOrderType('order');
+    }
+  }, [storeSettings]);
 
   const total = cart.reduce((acc, item) => acc + ((item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : (item.offerPrice || item.price)) * item.quantity), 0);
 
@@ -1803,8 +1814,9 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
     e.preventDefault();
     if (!customerName.trim()) return;
 
+    const invoiceTitle = orderType === 'preorder' ? '*PRE-ORDER INVOICE*' : '*NEW INVOICE*';
     const phoneNumber = "971569728661"; // Updated WhatsApp number
-    const message = `*NEW INVOICE*\nCustomer Name: ${customerName}\n\n*ORDER DETAILS:*\n${cart.map(item => `- ${item.name} ${item.size ? `(Size: ${item.size})` : ''} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${((item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : (item.offerPrice || item.price)) * item.quantity).toLocaleString()}`).join('\n')}\n\n*Total:* AED ${total.toLocaleString()}`;
+    const message = `${invoiceTitle}\nCustomer Name: ${customerName}\n\n*ORDER DETAILS:*\n${cart.map(item => `- ${item.name} ${item.size ? `(Size: ${item.size})` : ''} (SKU: ${item.sku || 'N/A'}) (x${item.quantity}) - AED ${((item.offerPercentage ? item.price * (1 - item.offerPercentage / 100) : (item.offerPrice || item.price)) * item.quantity).toLocaleString()}`).join('\n')}\n\n*Total:* AED ${total.toLocaleString()}`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
     setIsPopupOpen(false);
@@ -1879,15 +1891,48 @@ const Cart = ({ cart, updateQuantity, removeFromCart, setPage }: {
                 <span className="text-kael-purple">Shipping</span>
                 <span className="text-kael-gold font-bold">Free in UAE</span>
               </div>
-              <div className="flex justify-between text-lg font-bold border-t border-kael-gold/20 pt-4">
+              <div className="flex justify-between text-lg font-bold border-t border-kael-gold/20 pt-4 mb-8">
                 <span>Total</span>
                 <span>AED {total.toLocaleString()}</span>
               </div>
+              
+              <div className="mb-8 border-t border-kael-gold/20 pt-8">
+                <h4 className="text-sm font-bold uppercase tracking-wider mb-4">Order Type</h4>
+                <div className="flex space-x-4 mb-4">
+                  <button 
+                    onClick={() => setOrderType('order')}
+                    disabled={!storeSettings.isOrderNowEnabled}
+                    className={cn(
+                      "flex-1 py-3 text-xs uppercase tracking-widest font-bold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                      orderType === 'order' ? "bg-kael-ink text-white border-kael-ink" : "bg-transparent text-kael-purple border-kael-gold/20 hover:border-kael-gold"
+                    )}
+                  >
+                    Order Now
+                  </button>
+                  <button 
+                    onClick={() => setOrderType('preorder')}
+                    disabled={!storeSettings.isPreOrderEnabled}
+                    className={cn(
+                      "flex-1 py-3 text-xs uppercase tracking-widest font-bold border transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+                      orderType === 'preorder' ? "bg-kael-ink text-white border-kael-ink" : "bg-transparent text-kael-purple border-kael-gold/20 hover:border-kael-gold"
+                    )}
+                  >
+                    Pre-Order
+                  </button>
+                </div>
+                {orderType === 'preorder' && (
+                  <p className="text-[10px] text-kael-purple leading-relaxed bg-kael-gold/5 p-4 rounded border border-kael-gold/10 text-left">
+                    <span className="font-bold text-kael-gold block mb-1 uppercase tracking-widest">What is a Pre-Order?</span>
+                    Secure your item before it's restocked or crafted. Our pieces require meticulous craftsmanship, so estimated delivery times vary. We will coordinate payment and delivery timelines with you directly via WhatsApp.
+                  </p>
+                )}
+              </div>
+
               <button 
                 onClick={() => setIsPopupOpen(true)}
-                className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold mt-8"
+                className="btn-luxury w-full bg-kael-ink text-white hover:bg-kael-gold"
               >
-                Proceed to Checkout
+                {orderType === 'preorder' ? 'Proceed to Pre-Order' : 'Proceed to Checkout'}
               </button>
             </div>
           </div>
@@ -2416,7 +2461,8 @@ const AdminDashboard = ({
   categories,
   pageContents,
   heroSlides,
-  collectionSlides
+  collectionSlides,
+  storeSettings
 }: { 
   setPage: (p: Page) => void, 
   setIsSimpleAdminLoggedIn: (b: boolean) => void,
@@ -2427,9 +2473,10 @@ const AdminDashboard = ({
   categories: Category[],
   pageContents: PageContent[],
   heroSlides: HeroSlide[],
-  collectionSlides: CollectionSlide[]
+  collectionSlides: CollectionSlide[],
+  storeSettings: StoreSettings
 }) => {
-  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'collections' | 'testimonials' | 'categories' | 'pages' | 'slides' | 'collection_slides'>('products');
+  const [activeTab, setActiveTab] = useState<'products' | 'orders' | 'collections' | 'testimonials' | 'categories' | 'pages' | 'slides' | 'collection_slides' | 'settings'>('products');
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isAddingCollection, setIsAddingCollection] = useState(false);
@@ -2672,6 +2719,18 @@ const AdminDashboard = ({
     }
   };
 
+  const handleUpdateSettings = async (field: keyof StoreSettings, value: boolean) => {
+    try {
+      await setDoc(doc(db, 'store_settings', 'main'), {
+        ...storeSettings,
+        [field]: value,
+        updatedAt: new Date().toISOString()
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, 'store_settings');
+    }
+  };
+
   const handleAddPage = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -2859,6 +2918,12 @@ const AdminDashboard = ({
                 className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'pages' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
               >
                 Pages
+              </button>
+              <button 
+                onClick={() => setActiveTab('settings')}
+                className={cn("px-4 py-2 text-[10px] uppercase tracking-widest transition-all", activeTab === 'settings' ? "bg-kael-ink text-white" : "bg-white text-kael-ink border border-kael-gold/20")}
+              >
+                Settings
               </button>
             </div>
             <div className="flex space-x-2">
@@ -3213,7 +3278,7 @@ const AdminDashboard = ({
               )}
             </div>
           </div>
-        ) : (
+        ) : activeTab === 'pages' ? (
           <div>
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-bold">Page Content Management</h2>
@@ -3258,7 +3323,55 @@ const AdminDashboard = ({
               ))}
             </div>
           </div>
-        )}
+        ) : activeTab === 'settings' ? (
+          <div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-bold">Store Settings</h2>
+            </div>
+            
+            <div className="bg-white p-8 shadow-sm border border-kael-gold/5 max-w-2xl">
+              <div className="space-y-8">
+                <div className="flex items-center justify-between p-4 bg-kael-paper rounded">
+                  <div>
+                    <h3 className="font-bold text-sm uppercase tracking-widest text-kael-ink">Order Now Button</h3>
+                    <p className="text-xs text-kael-purple mt-1">Enable or disable the immediate purchase option on the storefront.</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer"
+                      checked={storeSettings.isOrderNowEnabled}
+                      onChange={(e) => handleUpdateSettings('isOrderNowEnabled', e.target.checked)}
+                    />
+                    <div className={cn(
+                      "w-11 h-6 bg-kael-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all",
+                      storeSettings.isOrderNowEnabled ? "bg-kael-ink" : "bg-kael-gold/20"
+                    )}></div>
+                  </label>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 bg-kael-paper rounded">
+                  <div>
+                    <h3 className="font-bold text-sm uppercase tracking-widest text-kael-ink">Pre-Order Button</h3>
+                    <p className="text-xs text-kael-purple mt-1">Enable or disable the pre-order option for items not currently in stock.</p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer"
+                      checked={storeSettings.isPreOrderEnabled}
+                      onChange={(e) => handleUpdateSettings('isPreOrderEnabled', e.target.checked)}
+                    />
+                    <div className={cn(
+                      "w-11 h-6 bg-kael-gold/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all",
+                      storeSettings.isPreOrderEnabled ? "bg-kael-ink" : "bg-kael-gold/20"
+                    )}></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
       {/* Add Product Modal */}
@@ -4051,6 +4164,7 @@ export default function App() {
   const [cart, setCart] = useState<OrderItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>({ isOrderNowEnabled: false, isPreOrderEnabled: true });
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -4060,6 +4174,15 @@ export default function App() {
   const [collectionSlides, setCollectionSlides] = useState<CollectionSlide[]>([]);
 
   useEffect(() => {
+    const unsubStoreSettings = onSnapshot(doc(db, 'store_settings', 'main'), (docSnap) => {
+      if (docSnap.exists()) {
+        setStoreSettings(docSnap.data() as StoreSettings);
+      } else {
+        // default if not exists
+        setStoreSettings({ isOrderNowEnabled: false, isPreOrderEnabled: true });
+      }
+    }, (error) => handleFirestoreError(error, OperationType.GET, 'store_settings'));
+
     const unsubProducts = onSnapshot(collection(db, 'products'), (snapshot) => {
       setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'products'));
@@ -4088,7 +4211,7 @@ export default function App() {
       setCollectionSlides(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as CollectionSlide)));
     }, (error) => handleFirestoreError(error, OperationType.GET, 'collection_slides'));
 
-    return () => { unsubProducts(); unsubCategories(); unsubCollections(); unsubTestimonials(); unsubPageContent(); unsubHeroSlides(); unsubCollectionSlides(); };
+    return () => { unsubStoreSettings(); unsubProducts(); unsubCategories(); unsubCollections(); unsubTestimonials(); unsubPageContent(); unsubHeroSlides(); unsubCollectionSlides(); };
   }, []);
 
   useEffect(() => {
@@ -4235,9 +4358,9 @@ export default function App() {
       case 'craft': return <Craft pageContents={pageContents} />;
       case 'contact': return <Contact pageContents={pageContents} />;
       case 'product': return selectedProduct ? <ProductDetail product={selectedProduct} setPage={setPage} addToCart={addToCart} trackView={trackView} /> : <Home setPage={setPage} setSelectedProduct={setSelectedProduct} products={products} testimonials={testimonials} heroSlides={heroSlides} collectionSlides={collectionSlides} userActivity={userActivity} trackView={trackView} addToCart={addToCart} />;
-      case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} />;
+      case 'cart': return <Cart cart={cart} updateQuantity={updateQuantity} removeFromCart={removeFromCart} setPage={setPage} storeSettings={storeSettings} />;
       case 'login': return <LoginPage onLogin={(dest) => setPage(dest || (effectiveIsAdmin ? 'admin' : 'home'))} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
-      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} heroSlides={heroSlides} collectionSlides={collectionSlides} /> : <LoginPage onLogin={(dest) => setPage(dest || 'admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
+      case 'admin': return effectiveIsAdmin ? <AdminDashboard setPage={setPage} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} products={products} orders={orders} collections={collections} testimonials={testimonials} categories={categories} pageContents={pageContents} heroSlides={heroSlides} collectionSlides={collectionSlides} storeSettings={storeSettings} /> : <LoginPage onLogin={(dest) => setPage(dest || 'admin')} user={user} setIsSimpleAdminLoggedIn={setIsSimpleAdminLoggedIn} />;
       case 'collections': return <Collections products={products} categories={categories} collections={collections} setPage={setPage} setSelectedProduct={setSelectedProduct} searchQuery={searchQuery} pageContents={pageContents} addToCart={addToCart} />;
       default: return (
         <div className="pt-48 pb-32 px-6 text-center">
